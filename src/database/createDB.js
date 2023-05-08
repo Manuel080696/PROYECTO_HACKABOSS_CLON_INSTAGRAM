@@ -1,24 +1,13 @@
-"use strict";
-const getDB = require("./db");
-require("dotenv").config();
+'use strict';
+const { getDB } = require('./db');
+require('dotenv').config();
 
 let connect;
 
 async function initDB() {
   try {
     connect = await getDB();
-    console.log("Creo el Data Base");
-    await connect.query(
-      `
-      CREATE DATABASE IF NOT EXISTS instaClon;
-    `
-    );
-    await connect.query(
-      `
-        USE instaClon;
-      `
-    );
-    console.log("Borramos las tablas");
+    console.log('Borramos las tablas');
     await connect.query(
       `
           DROP TABLE IF EXISTS likes
@@ -34,7 +23,7 @@ async function initDB() {
             DROP TABLE IF EXISTS users
           `
     );
-    console.log("Creamos las tablas");
+    console.log('Creamos las tablas');
     await connect.query(
       `
         CREATE TABLE users(
@@ -46,6 +35,7 @@ async function initDB() {
             userName VARCHAR(50) UNIQUE NOT NULL,
             password VARCHAR(100) NOT NULL,
             birthDay VARCHAR(10),
+            role VARCHAR(10) DEFAULT "user",
             active BOOLEAN DEFAULT 0,
             registrationCode VARCHAR(250)
         );
