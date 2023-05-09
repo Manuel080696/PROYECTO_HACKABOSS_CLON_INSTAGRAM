@@ -2,11 +2,14 @@
 
 const express = require('express');
 const morgan = require('morgan');
+const fileUpload = require('express-fileupload');
 
 const app = express();
+app.use(fileUpload());
 app.use(morgan('dev'));
 app.use(express.json());
 
+app.use('/uploads', express.static('./uploads'));
 /**Rutas*/
 const {
   newUserController,
@@ -17,7 +20,7 @@ const {
 const {
   getPhotosController,
   newPhotosController,
-  searchPhotoController,
+  // searchPhotoController,
 } = require('./src/controllers/photos');
 const { isUserAuth } = require('./src/middleware/isUserAuth');
 
@@ -29,7 +32,7 @@ app.post('/login', loginController);
 /*      Photos*/
 app.get('/photos', getPhotosController);
 app.post('/photos', isUserAuth, newPhotosController);
-app.get('/photos/search', searchPhotoController);
+// app.get('/photos/search', searchPhotoController);
 
 //Middleware 404 not found
 app.use((req, res) => {

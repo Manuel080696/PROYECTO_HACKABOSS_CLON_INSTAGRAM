@@ -8,6 +8,16 @@ const generateError = (message, status) => {
   return error;
 };
 
+//Función para crear el directorio de las fotos
+const createUpload = async (path) => {
+  try {
+    await fs.access(path);
+  } catch {
+    await fs.mkdir(path);
+  }
+};
+
 module.exports = {
   generateError,
+  createUpload,
 };
