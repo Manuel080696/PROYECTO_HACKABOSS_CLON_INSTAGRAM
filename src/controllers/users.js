@@ -93,16 +93,8 @@ const loginController = async (req, res, next) => {
   }
 };
 
-const regCodeController = async (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
-  }
-};
-
 module.exports = {
   newUserController,
   getUserController,
   loginController,
-  regCodeController,
 };

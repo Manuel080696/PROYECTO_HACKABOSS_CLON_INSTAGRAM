@@ -12,14 +12,24 @@ const {
   newUserController,
   getUserController,
   loginController,
-  regCodeController,
 } = require('./src/controllers/users');
+
+const {
+  getPhotosController,
+  newPhotosController,
+  searchPhotoController,
+} = require('./src/controllers/photos');
+const { isUserAuth } = require('./src/middleware/isUserAuth');
 
 /*     Users*/
 app.post('/user', newUserController);
 app.get('/user/:id', getUserController);
 app.post('/login', loginController);
-app.get('/users/validate/:regCode', regCodeController);
+
+/*      Photos*/
+app.get('/photos', getPhotosController);
+app.post('/photos', isUserAuth, newPhotosController);
+app.get('/photos/search', searchPhotoController);
 
 //Middleware 404 not found
 app.use((req, res) => {

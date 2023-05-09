@@ -35,7 +35,7 @@ const createUser = async (
     //Crear el usuario
     await connection.query(
       `
-        INSERT INTO users (name, lastName, userName, email, password, birthDay) VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO users (name, lastName, userName, email, password, birthDay, active ) VALUES (?, ?, ?, ?, ?, ?, 1)
         `,
       [name, lastName, userName, email, passHash, birthDay]
     );
