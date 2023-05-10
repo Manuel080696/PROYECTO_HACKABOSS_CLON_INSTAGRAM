@@ -22,3 +22,17 @@
     *sgMail: Por si el usuario se olvida de su contraseña, reenviarle un correo con un código de seguridad a su correo, para que pueda restaurar la contraseña.
     
     
+08/05/2023 -- Creación de la base de datos en SQL, después la pasamos a NODE.js creando una estructura base. Determinamos los controllers que necesitabamos para: users, photos y likes. Determinamos quién haría cada parte en grupo, y desarrollamos una metodología de trabajo
+
+09/05/2023 -- Acabamos los controllers de users, y comenzamos con los controllers de photos. Creando también las funciones de cada uno de los controllers, siendo estas, consultas a la base de datos, estando todas ellas en la carpeta db
+
+
+10/05/2023 -- Se terminó de arreglar los controllers de photos, y se agregó otra ruta : "/photos/:id". Usamos para la búsqueda de photos por las palabras de dicha descripción, entregada la palabra por el usuario, através de req.body. Usando el módulo:
+        
+  -NPM
+    *fuse: Para facilitar la búsqueda de un elemento indeterminado (objeto, foto, imagen, propiedad,...) por unos parámetros dados o especificados, cabiendo una posibilidad de devolver un array de objetos con dichos contenidos
+    
+    Creamos el controller de newLike con sus funciones en db
+    
+    
+    
