@@ -20,8 +20,15 @@ const {
 const {
   getPhotosController,
   newPhotosController,
-  // searchPhotoController,
+  searchPhotoController,
+  getPhotoSingleController,
 } = require('./src/controllers/photos');
+
+const {
+  newLikeController,
+  deleteLikeController,
+} = require('./src/controllers/likes');
+
 const { isUserAuth } = require('./src/middleware/isUserAuth');
 
 /*     Users*/
@@ -32,7 +39,12 @@ app.post('/login', loginController);
 /*      Photos*/
 app.get('/photos', getPhotosController);
 app.post('/photos', isUserAuth, newPhotosController);
-// app.get('/photos/search', searchPhotoController);
+app.get('/photos/search', searchPhotoController);
+app.get('/photos/:id', getPhotoSingleController);
+
+/*      Likes*/
+app.post('/photos/:id/like', isUserAuth, newLikeController);
+// app.delete('/unlike', isUserAuth, deleteLikeController);
 
 //Middleware 404 not found
 app.use((req, res) => {
@@ -51,6 +63,6 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(3001, () => {
-  console.log('El servidor está escuchando en el puerto 3001');
+app.listen(3000, () => {
+  console.log('El servidor está escuchando en el puerto 3000');
 });
