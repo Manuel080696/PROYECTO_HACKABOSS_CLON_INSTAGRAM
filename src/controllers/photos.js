@@ -64,6 +64,10 @@ const searchPhotoController = async (req, res, next) => {
     const fuseObject = new fuse(data, options);
     const results = fuseObject.search(searchObj);
 
+    if (results.length === 0) {
+      throw generateError('No hay photos con esta busquedá', 404);
+    }
+
     const resultadosSinRefIndex = results.map((resultado) => {
       const objeto = resultado.item;
       delete objeto.refIndex;

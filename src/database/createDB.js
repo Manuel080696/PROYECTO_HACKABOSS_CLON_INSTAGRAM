@@ -15,9 +15,16 @@ async function initDB() {
     );
     await connect.query(
       `
+            DROP TABLE IF EXISTS comments
+          `
+    );
+
+    await connect.query(
+      `
             DROP TABLE IF EXISTS photos
           `
     );
+
     await connect.query(
       `
             DROP TABLE IF EXISTS users
@@ -65,6 +72,19 @@ async function initDB() {
             FOREIGN KEY(id_user) REFERENCES users(id),
             FOREIGN KEY(id_photo) REFERENCES photos(id),
             UNIQUE(id_user, id_photo)
+        );
+            `
+    );
+    await connect.query(
+      `
+        CREATE TABLE comments(
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            id_user INT UNSIGNED NOT NULL,
+            id_photo INT UNSIGNED NOT NULL,
+            text VARCHAR(500),
+            FOREIGN KEY(id_user) REFERENCES users(id),
+            FOREIGN KEY(id_photo) REFERENCES photos(id)
         );
             `
     );

@@ -63,14 +63,32 @@ const totalLike = async (userId, id) => {
     connection = await getDB();
     const [result] = await connection.query(
       `
-      SELECT COUNT(l.id_photo)
+      SELECT COUNT(l.id_photo) AS likes
       FROM photos p
       LEFT JOIN likes l ON l.id_photo = p.id 
       WHERE p.id =?
           `,
       [id]
     );
-    return result;
+
+    return result[0].likes;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+const deleteLikeById = async (id, userId) => {
+  let connection;
+
+  try {
+    connection = await getDB();
+    await connection.query(
+      `
+      DELETE FROM likes WHERE id_photo = ? AND id_user=?
+          `,
+      [id, userId]
+    );
+    return;
   } finally {
     if (connection) connection.release();
   }
@@ -81,4 +99,5 @@ module.exports = {
   existingLike,
   newLike,
   totalLike,
+  deleteLikeById,
 };
