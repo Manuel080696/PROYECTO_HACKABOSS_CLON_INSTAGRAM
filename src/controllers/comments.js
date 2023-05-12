@@ -11,7 +11,8 @@ const { generateError } = require('../../helpers');
 const postCommentController = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userId, comment } = req.body;
+    const { comment } = req.body;
+    const userId = req.userId;
 
     //para mirar se el post exist
     const existPost = await existingPost(id);
@@ -37,23 +38,21 @@ const postCommentController = async (req, res, next) => {
 
 const unCommentController = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { userId } = req.body;
+    const { id, id_comment } = req.params;
 
     //para mirar se el post exist
-    const existComment = await existingComment(userId, id);
-    console.log(existComment);
+    const validateComment = await existingComment(id, id_comment);
 
-    if (existComment.length === 0) {
-      throw generateError('El comentario que quieres borrar no existe', 403);
+    if (validateComment.id_user !== req.userId) {
+      throw generateError('No puedes borrar este comentario', 403);
     }
 
     //Comentamos en la photo
-    await deleteComment(existComment[0].id);
+    await deleteComment(id_comment);
 
     res.send({
       status: 200,
-      message: `Comentario borrado correctamente en el post:${id}`,
+      message: `Comentario id:${id_comment} borrado correctamente en el post:${id}`,
     });
   } catch (error) {
     next(error);

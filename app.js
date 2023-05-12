@@ -25,10 +25,7 @@ const {
   getPhotoSingleController,
 } = require('./src/controllers/photos');
 /*Rutas Likes */
-const {
-  newLikeController,
-  deleteLikeController,
-} = require('./src/controllers/likes');
+const { likeController } = require('./src/controllers/likes');
 
 /*Rutas Comments */
 const {
@@ -50,12 +47,15 @@ app.get('/photos/search', searchPhotoController);
 app.get('/photos/:id', getPhotoSingleController);
 
 /*      Likes*/
-app.post('/photos/:id/like', isUserAuth, newLikeController);
-app.delete('/photos/:id/unlike', isUserAuth, deleteLikeController);
+app.post('/photos/:id/like', isUserAuth, likeController);
 
 /*      Comentarios*/
 app.post('/photos/:id/comment', isUserAuth, postCommentController);
-app.delete('/photos/:id/uncomment', isUserAuth, unCommentController);
+app.delete(
+  '/photos/:id/uncomment/:id_comment',
+  isUserAuth,
+  unCommentController
+);
 
 //Middleware 404 not found
 app.use((req, res) => {

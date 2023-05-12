@@ -39,21 +39,20 @@ const commentPhoto = async (userId, id, comment) => {
   }
 };
 
-const existingComment = async (userId, id) => {
+const existingComment = async (id, id_comment) => {
   let connection;
 
   try {
     connection = await getDB();
     const [result] = await connection.query(
       `
-      SELECT id
+      SELECT id_user
       FROM comments
-      WHERE id_user=? AND id_photo=?
+      WHERE id_photo=? AND id=?
       `,
-      [userId, id]
+      [id, id_comment]
     );
-    console.log(result[0]);
-    return result;
+    return result[0];
   } finally {
     if (connection) connection.release();
   }
@@ -79,9 +78,31 @@ const deleteComment = async (id) => {
   }
 };
 
+const totalCommnets = async (id) => {
+  let connection;
+
+  try {
+    connection = await getDB();
+    const [result] = await connection.query(
+      `
+      SELECT COUNT(c.id_photo) AS comments
+      FROM photos p
+      LEFT JOIN comments c ON c.id_photo = p.id 
+      WHERE p.id =?
+          `,
+      [id]
+    );
+
+    return result[0].comments;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 module.exports = {
   existingPost,
   commentPhoto,
   deleteComment,
   existingComment,
+  totalCommnets,
 };

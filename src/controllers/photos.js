@@ -14,8 +14,9 @@ const { getAllPhotos } = require('../database/photos');
 
 const getPhotosController = async (req, res, next) => {
   try {
-    const photos = await getAllPhotos();
-    console.log(photos);
+    const userId = req.userId;
+    const photos = await getAllPhotos(userId);
+    console.log(userId);
     res.send({
       status: 200,
       data: photos[0],
@@ -85,11 +86,10 @@ const searchPhotoController = async (req, res, next) => {
 
 const getPhotoSingleController = async (req, res, next) => {
   try {
-    const photos = await getPhotoController();
-    console.log(photos);
+    const photos = await getPhotoController(req.params.id);
     res.send({
       status: 200,
-      data: photos[0],
+      post: photos,
     });
   } catch (error) {
     next(error);

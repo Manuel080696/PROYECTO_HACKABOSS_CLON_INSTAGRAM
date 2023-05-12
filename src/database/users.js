@@ -29,7 +29,7 @@ const createUser = async (
         409
       );
     }
-    //Encriptar la password
+
     const passHash = await bcrypt.hash(password, 8);
 
     //Crear el usuario

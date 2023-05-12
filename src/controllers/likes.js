@@ -11,11 +11,11 @@ const {
 // const jwt = require('jsonwebtoken');
 const { generateError } = require('../../helpers');
 
-const newLikeController = async (req, res, next) => {
+const likeController = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userId } = req.body;
-
+    const userId = req.userId;
+    let vote = false;
     //Para que no se vote así mismo
     const user = await autoLike(id);
 
@@ -26,36 +26,20 @@ const newLikeController = async (req, res, next) => {
     //El usuario no ha votado 2 veces
     const existsUserLike = await existingLike(userId, id);
     if (existsUserLike.length > 0) {
-      throw generateError('Ya has dado like a este post', 403);
+      await deleteLikeById(id, userId);
+      vote = false;
+    } else {
+      //Registramos el voto en la tabla
+      await newLike(userId, id);
+      vote = true;
     }
-
-    //Registramos el voto en la tabla
-    await newLike(userId, id);
 
     //Suma de votos
     const totalLikes = await totalLike(userId, id);
     res.send({
       status: 200,
       likes: totalLikes,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-const deleteLikeController = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { userId } = req.body;
-    const existLike = await existingLike(userId, id);
-    if (existLike.length === 0) {
-      throw generateError(`No has dado like a este post`, 403);
-    }
-    await deleteLikeById(id, userId);
-    const totalLikes = await totalLike(userId, id);
-    res.send({
-      status: 200,
-      message: 'El like fue eliminado',
-      likes: totalLikes,
+      vote: vote,
     });
   } catch (error) {
     next(error);
@@ -63,6 +47,5 @@ const deleteLikeController = async (req, res, next) => {
 };
 
 module.exports = {
-  newLikeController,
-  deleteLikeController,
+  likeController,
 };

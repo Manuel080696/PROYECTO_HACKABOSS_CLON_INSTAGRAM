@@ -23,11 +23,7 @@ const newUserController = async (req, res, next) => {
 
     const validation = schema.validate(req.body);
     if (validation.error) {
-      console.error(validation.error.message);
-      res.send({
-        status: 'error',
-        message: validation.error.message,
-      });
+      throw generateError(validation.error, 400);
     }
 
     const newUser = await createUser(
@@ -83,6 +79,9 @@ const loginController = async (req, res, next) => {
     const token = jwt.sign(payLoad, process.env.SECRET, {
       expiresIn: '1d',
     });
+
+    req.userId = user.id;
+    console.log(req.userId);
 
     res.send({
       status: 'ok',
