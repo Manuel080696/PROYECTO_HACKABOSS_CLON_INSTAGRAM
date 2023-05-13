@@ -15,6 +15,7 @@ const {
   newUserController,
   getUserController,
   loginController,
+  deleteUserController,
 } = require('./src/controllers/users');
 
 /*Rutas Photos*/
@@ -24,6 +25,7 @@ const {
   searchPhotoController,
   getPhotoSingleController,
 } = require('./src/controllers/photos');
+
 /*Rutas Likes */
 const { likeController } = require('./src/controllers/likes');
 
@@ -34,11 +36,13 @@ const {
 } = require('./src/controllers/comments');
 
 const { isUserAuth } = require('./src/middleware/isUserAuth');
+const { isUserExists } = require('./src/middleware/isUserExists');
 
 /*     Users*/
 app.post('/user', newUserController);
-app.get('/user/:id', getUserController);
+app.get('/user/:id', isUserExists, getUserController);
 app.post('/login', loginController);
+app.delete('/user/:id', isUserAuth, deleteUserController);
 
 /*      Photos*/
 app.get('/photos', getPhotosController);

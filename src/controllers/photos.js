@@ -1,9 +1,9 @@
 'use strict';
 const path = require('path');
-const fuse = require('fuse.js');
 const sharp = require('sharp');
+
 const { nanoid } = require('nanoid');
-const { generateError, createUpload } = require('../../helpers');
+const { generateError, createUpload, idToken } = require('../../helpers');
 const {
   createPost,
   searchPhoto,
@@ -14,26 +14,34 @@ const { getAllPhotos } = require('../database/photos');
 
 const getPhotosController = async (req, res, next) => {
   try {
-    const userId = req.userId;
-    const photos = await getAllPhotos(userId);
-    console.log(userId);
-    res.send({
-      status: 200,
-      data: photos[0],
-    });
+    const { authorization } = req.headers;
+    if (authorization) {
+      const token = await idToken(authorization);
+      const photos = await getAllPhotos(token.id);
+
+      res.send({
+        status: 200,
+        data: photos,
+      });
+    } else {
+      const photos = await getAllPhotos();
+      res.send({
+        status: 200,
+        data: photos,
+      });
+    }
   } catch (error) {
     next(error);
   }
 };
-
 const newPhotosController = async (req, res, next) => {
   try {
     const { place, description } = req.body;
     if (!req.files && req.files.image) {
-      throw generateError('Debe colocar una imagen en tu publicación', 400);
+      throw generateError('Debes colocar una imagen en tu publicación', 400);
     }
     let imageFileName;
-    const uploadsDir = path.join(__dirname, '../uploads');
+    const uploadsDir = path.join(__dirname, '../uploads/posts');
     await createUpload(uploadsDir);
     const image = sharp(req.files.image.data);
     image.resize(1080);
@@ -57,27 +65,15 @@ const newPhotosController = async (req, res, next) => {
 const searchPhotoController = async (req, res, next) => {
   try {
     const { searchObj } = req.body;
-    const options = {
-      keys: ['description'],
-      threshold: 0.6,
-    };
-    const data = await searchPhoto();
-    const fuseObject = new fuse(data, options);
-    const results = fuseObject.search(searchObj);
+    const data = await searchPhoto(searchObj);
 
-    if (results.length === 0) {
+    if (data.length === 0) {
       throw generateError('No hay photos con esta busquedá', 404);
     }
-
-    const resultadosSinRefIndex = results.map((resultado) => {
-      const objeto = resultado.item;
-      delete objeto.refIndex;
-      return objeto;
-    });
     res.send({
       status: 200,
       message: 'Fotos coincidentes',
-      data: resultadosSinRefIndex,
+      data: data,
     });
   } catch (error) {
     next(error);
@@ -86,11 +82,21 @@ const searchPhotoController = async (req, res, next) => {
 
 const getPhotoSingleController = async (req, res, next) => {
   try {
-    const photos = await getPhotoController(req.params.id);
-    res.send({
-      status: 200,
-      post: photos,
-    });
+    const { authorization } = req.headers;
+    if (authorization) {
+      const token = await idToken(authorization);
+      const photos = await getPhotoController(req.params.id, token.id);
+      res.send({
+        status: 200,
+        post: photos,
+      });
+    } else {
+      const photos = await getPhotoController(req.params.id);
+      res.send({
+        status: 200,
+        post: photos,
+      });
+    }
   } catch (error) {
     next(error);
   }

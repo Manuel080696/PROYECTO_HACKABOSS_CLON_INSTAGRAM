@@ -3,30 +3,36 @@ const { getDB } = require('./db');
 
 const getAllPhotos = async (userId) => {
   let connection;
+  console.log(userId);
 
   try {
     connection = await getDB();
-    const result = connection.query(
+    const [result] = await connection.query(
       `
-    SELECT p.id, p.photoName, p.description, p.place, p.date, u.id, u.userName, u.avatar, l.id AS likeID, COUNT(l.id_photo) AS numeroLikes, COUNT(c.id_photo) AS comments
-    FROM photos p
-    INNER JOIN users u ON u.id = p.id_user 
-    LEFT JOIN likes l ON l.id_photo = p.id AND l.id_user =?
-    LEFT JOIN comments c ON c.id_photo = p.id
-    GROUP BY p.id, u.userName ORDER BY date DESC
+      SELECT 
+      p.id AS photoID, 
+      p.photoName,
+      p.description,
+      p.place, 
+      p.date,
+      u.avatar,
+      u.userName AS userPosted,
+      COUNT(DISTINCT l.id) AS numLikes,
+      COUNT(DISTINCT c.id) AS numComments,
+      MAX(CASE WHEN l.id_user = ? THEN 1 ELSE 0 END) AS dioLike
+  FROM 
+      photos p
+      JOIN users u ON p.id_user = u.id
+      LEFT JOIN likes l ON p.id = l.id_photo
+      LEFT JOIN comments c ON p.id = c.id_photo
+
+  GROUP BY 
+  p.id
+ORDER BY 
+  p.date DESC;
     `,
       [userId]
     );
-
-    /*  const [final] = await connection.query(
-      `
-  SELECT COUNT(c.id_photo) AS comments
-  FROM photos p
-  LEFT JOIN comments c ON c.id_photo = p.id 
-  WHERE p.id =?
-      `,
-      [id]
-    ); */
 
     return result;
   } finally {
@@ -50,13 +56,14 @@ const createPost = async (userId, place, description, image = '') => {
   }
 };
 
-const searchPhoto = async () => {
+const searchPhoto = async (description) => {
   let connection;
   try {
     connection = await getDB();
     const [result] = await connection.query(
       `
-        SELECT id, photoName, description FROM photos  ORDER BY date DESC`
+        SELECT id, photoName, description FROM photos  WHERE description LIKE ? ORDER BY date DESC`,
+      [`%${description}%`]
     );
     return result;
   } finally {
@@ -64,21 +71,35 @@ const searchPhoto = async () => {
   }
 };
 
-const getPhotoController = async (id) => {
+const getPhotoController = async (idPhoto, idUser) => {
   let connection;
   try {
     connection = await getDB();
     const [data] = await connection.query(
       `
-      SELECT p.id, p.photoName, p.description, p.place, p.date, u.id, u.userName, u.avatar, COUNT(l.id_photo) AS numeroLikes
-      FROM photos p
-      INNER JOIN users u ON u.id = p.id_user 
-      LEFT JOIN likes l ON l.id_photo = p.id 
-      WHERE p.id = ? 
-      GROUP BY p.id, u.userName;
-      
-      `,
-      [id]
+      SELECT 
+      p.id, 
+      p.photoName,
+      p.description,
+      p.place, 
+      p.date,
+      u.avatar,
+      u.userName,
+      COUNT(DISTINCT l.id) AS numeroLikes,
+      COUNT(DISTINCT c.id) AS numComments,
+      MAX(CASE WHEN l.id_user = ? THEN 1 ELSE 0 END) AS dioLike
+  FROM 
+      photos p
+      JOIN users u ON p.id_user = u.id
+      LEFT JOIN likes l ON p.id = l.id_photo
+      LEFT JOIN comments c ON p.id = c.id_photo
+WHERE p.id = ? 
+  GROUP BY 
+  p.id
+ORDER BY 
+  p.date DESC;
+    `,
+      [idUser, idPhoto]
     );
 
     const [comments] = await connection.query(
@@ -87,7 +108,7 @@ const getPhotoController = async (id) => {
       FROM comments
       WHERE id_photo =?
       `,
-      [id]
+      [idPhoto]
     );
 
     const result = {
@@ -99,6 +120,7 @@ const getPhotoController = async (id) => {
       userName: data[0].userName,
       avatar: data[0].avatar,
       numeroLikes: data[0].numeroLikes,
+      isLike: data[0].dioLike,
       comments: comments,
     };
 

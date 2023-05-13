@@ -5,6 +5,7 @@ const { generateError } = require('../../helpers');
 
 //Crear un usuario
 const createUser = async (
+  avatar,
   name,
   lastName,
   userName,
@@ -35,9 +36,9 @@ const createUser = async (
     //Crear el usuario
     await connection.query(
       `
-        INSERT INTO users (name, lastName, userName, email, password, birthDay, active ) VALUES (?, ?, ?, ?, ?, ?, 1)
+        INSERT INTO users (avatar, name, lastName, userName, email, password, birthDay, active ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)
         `,
-      [name, lastName, userName, email, passHash, birthDay]
+      [avatar, name, lastName, userName, email, passHash, birthDay]
     );
 
     return userName;
@@ -106,9 +107,51 @@ const getUserByEmail = async (email) => {
     }
   }
 };
+//Borrar usuario por el id
+const deleteUserById = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+    await connection.query(
+      `
+    UPDATE users
+    SET avatar = NULL, name ='[borrado]', lastName = '[borrado]', userName = '[borrado]', password = '[borrado]', 
+    birthday = '[borrado]', role = '[borrado]', active = 0, deleted = 1, lastAuthUpdate = ?
+    WHERE id = ?`,
+      [new Date(), id]
+    );
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+// Para saber si existe el usuario
+const userExists = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+    const user = await connection.query(
+      `
+        SELECT id
+        FROM users
+        WHERE id=?
+      `,
+      [id]
+    );
+    return user;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
 
 module.exports = {
   createUser,
   getUserById,
   getUserByEmail,
+  deleteUserById,
+  userExists,
 };

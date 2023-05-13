@@ -44,8 +44,10 @@ async function initDB() {
             birthDay VARCHAR(10),
             role VARCHAR(10) DEFAULT "user",
             active BOOLEAN DEFAULT 0,
+            deleted TINYINT(1) DEFAULT 0,
             registrationCode VARCHAR(250),
-            dateCreation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP()
+            dateCreation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            lastAuthUpdate DATETIME DEFAULT NULL
         );
         `
     );

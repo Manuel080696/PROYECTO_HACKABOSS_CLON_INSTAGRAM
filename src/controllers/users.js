@@ -1,13 +1,17 @@
 'use strict';
 const bcrypt = require('bcrypt');
+const path = require('path');
+const sharp = require('sharp');
+const { nanoid } = require('nanoid');
+const { generateError, createUpload } = require('../../helpers');
 const {
   createUser,
   getUserById,
   getUserByEmail,
+  deleteUserById,
 } = require('../database/users');
 const joi = require('joi');
 const jwt = require('jsonwebtoken');
-const { generateError } = require('../../helpers');
 
 const newUserController = async (req, res, next) => {
   try {
@@ -19,6 +23,15 @@ const newUserController = async (req, res, next) => {
       email: joi.string().email().required(),
       password: joi.string().min(8).required(),
       birthDay: joi.date(),
+      avatar: joi.object({
+        filename: joi.string().required(),
+        mimetype: joi
+          .string()
+          .valid('image/png', 'image/jpeg', 'image/gif')
+          .required(),
+        size: joi.number().max(5000000).required(),
+        path: joi.string().required(),
+      }),
     });
 
     const validation = schema.validate(req.body);
@@ -26,7 +39,16 @@ const newUserController = async (req, res, next) => {
       throw generateError(validation.error, 400);
     }
 
+    let imageFileName;
+    const uploadsDir = path.join(__dirname, '../uploads/avatar');
+    await createUpload(uploadsDir);
+    const image = sharp(req.files.avatar.data);
+    image.resize(320);
+    imageFileName = `${nanoid(24)}.jpg`;
+    await image.toFile(path.join(uploadsDir, imageFileName));
+
     const newUser = await createUser(
+      imageFileName,
       name,
       lastName,
       userName,
@@ -80,12 +102,28 @@ const loginController = async (req, res, next) => {
       expiresIn: '1d',
     });
 
-    req.userId = user.id;
-    console.log(req.userId);
-
     res.send({
       status: 'ok',
       data: token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteUserController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (req.userId !== parseInt(id)) {
+      throw generateError(
+        'No tienes permisos para eliminar a este usuario',
+        401
+      );
+    }
+    await deleteUserById(id);
+    res.send({
+      status: 'ok',
+      message: `El usuario con id:${id} ha sido eliminado`,
     });
   } catch (error) {
     next(error);
@@ -96,4 +134,5 @@ module.exports = {
   newUserController,
   getUserController,
   loginController,
+  deleteUserController,
 };
