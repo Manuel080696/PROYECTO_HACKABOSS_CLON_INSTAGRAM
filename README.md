@@ -76,15 +76,17 @@
   <p></p>
   <li>"getPhotoControllerSingle" sirve para coger una sola foto mediante el ID, pasado a través del parametro, justo después de "photos/:id", es decir "photos/4". Veremos en headers, el nombrado anteriormente Authorization, el cuál usaremos para saber si el usuario está loggeado o no, y pueda ver su like en dicha publicación si lo ha dado.</li>
   <p></p>
-  <li>"deletePhotoController" sirve para eliminar el post, si el usuario es el que lo ha creado</li>
+  <li>"deletePhotoController" sirve para eliminar el post, si el usuario es el que lo ha creado, de la siguiente forma:</li>
+   <ul>
+     <li>"photos/:photoId", es decir "/photos/4"</li>
+  </ul>
   <p></p>
   <li>"newLikeController" sirve para dar like a las diferentes publicaciones, indicadas en el params de la siguiente forma: "photos/4/like", así le darémos like a la photo con el id 4, si le damos like a algo que ya tenía un like, quitaremos dicho like</li>
   <p></p>
-  <li>"postCommentController" para subir un comentario a una foto indicada en el params, algo parecido a el de "newLikeController" pero esta vez solo cambiando el like por comment "photos/4/comment", pero además, deberemos indicar que es lo que queremos comentar mediante un JSON con la propiedad:
+  <li>"postCommentController" para subir un comentario a una foto indicada en el params, algo parecido a el de "newLikeController" pero esta vez solo cambiando el like por comment "photos/4/comment", pero además, deberemos indicar que es lo que queremos comentar mediante un JSON con la propiedad:</li>
     <ul>
       <li> "comment": "Comentario"</li>
     </ul>
-  </li>
   <p></p>
   <li>"unCommentController" sirve para eliminar un comentario si ese comentario te pertenece, para ello deberemos indicar tanto la foto como el comentario que deseamos eliminar mediante params, de la siguiente forma:</li>
   <ul>
