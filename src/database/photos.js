@@ -75,7 +75,7 @@ const searchPhoto = async (description) => {
 };
 
 //Función para obtener un post por su id
-const getPhotoController = async (idPhoto, idUser) => {
+const getPhoto = async (idPhoto, idUser) => {
   let connection;
   try {
     connection = await getDB();
@@ -134,9 +134,64 @@ ORDER BY
   }
 };
 
+//Borrar elementos de la base de datos (post)
+const searchDeletePhoto = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+    const [result] = await connection.query(
+      `
+      SELECT id, id_user
+      FROM photos
+      WHERE id = ?;
+      `,
+      [id]
+    );
+
+    return result;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+const deletePhoto = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+    await connection.query(
+      `
+      DELETE FROM likes 
+      WHERE id_photo=?;
+      `,
+      [id]
+    );
+
+    await connection.query(
+      `
+      DELETE FROM comments 
+      WHERE id_photo=?;
+      `,
+      [id]
+    );
+
+    await connection.query(
+      `
+      DELETE FROM photos 
+      WHERE photos.id=?;
+      `,
+      [id]
+    );
+    console.log('oli');
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 module.exports = {
   getAllPhotos,
   createPost,
   searchPhoto,
-  getPhotoController,
+  getPhoto,
+  searchDeletePhoto,
+  deletePhoto,
 };

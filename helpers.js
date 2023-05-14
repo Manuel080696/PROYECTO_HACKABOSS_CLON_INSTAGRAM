@@ -35,7 +35,9 @@ const idToken = async (authorization) => {
 //Función para guardar el avatar
 const saveAvatar = async (avatar) => {
   let imageFileName;
-  const uploadsDir = path.join(__dirname, '../uploads/avatar');
+  const pathDir = path.join(__dirname, './uploads');
+  await createUpload(pathDir);
+  const uploadsDir = path.join(__dirname, '/uploads/avatar');
   await createUpload(uploadsDir);
   const image = sharp(avatar.data);
   image.resize(320);

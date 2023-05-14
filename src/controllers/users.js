@@ -5,6 +5,7 @@ const sharp = require('sharp');
 const { nanoid } = require('nanoid');
 const { generateError, saveAvatar } = require('../../helpers');
 const {
+  createUserNoAvatar,
   createUser,
   getUserById,
   getUserByEmail,
@@ -40,9 +41,22 @@ const newUserController = async (req, res, next) => {
     if (validation.error) {
       throw generateError(validation.error, 400);
     }
+    if (!req.files || !req.files.avatar) {
+      const newUser = await createUserNoAvatar(
+        name,
+        lastName,
+        userName,
+        email,
+        password,
+        birthDay
+      );
+      res.send({
+        status: 202,
+        message: `Usuario ${newUser} creado correctamente`,
+      });
+    }
 
     const userAvatar = await saveAvatar(req.files.avatar);
-
     const newUser = await createUser(
       userAvatar,
       name,
@@ -52,7 +66,6 @@ const newUserController = async (req, res, next) => {
       password,
       birthDay
     );
-
     res.send({
       status: 202,
       message: `Usuario ${newUser} creado correctamente`,

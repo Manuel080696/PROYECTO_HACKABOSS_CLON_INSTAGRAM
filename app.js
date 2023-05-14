@@ -25,6 +25,7 @@ const {
   newPhotosController,
   searchPhotoController,
   getPhotoSingleController,
+  deletePhotoController,
 } = require('./src/controllers/photos');
 
 /*Rutas Likes */
@@ -50,6 +51,7 @@ app.get('/photos', getPhotosController);
 app.post('/photos', isUserAuth, newPhotosController);
 app.get('/photos/search', searchPhotoController);
 app.get('/photos/:id', getPhotoSingleController);
+app.delete('/photos/:id', isUserExists, isUserAuth, deletePhotoController);
 
 /*      Likes*/
 app.post('/photos/:id/like', isUserAuth, likeController);
@@ -79,6 +81,6 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(3000, () => {
+app.listen(3004, () => {
   console.log('El servidor está escuchando en el puerto 3000');
 });

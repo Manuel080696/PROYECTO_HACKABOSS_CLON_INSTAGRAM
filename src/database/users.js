@@ -49,6 +49,51 @@ const createUser = async (
   }
 };
 
+//Crear un usuario sin avatar asignado
+const createUserNoAvatar = async (
+  name,
+  lastName,
+  userName,
+  email,
+  password,
+  birthDay
+) => {
+  let connection;
+  try {
+    connection = await getDB();
+
+    const [user] = await connection.query(
+      `
+        SELECT id FROM users WHERE email=?
+        `,
+      [email]
+    );
+
+    if (user.length > 0) {
+      throw generateError(
+        'Ya existe un usuario en la base de datos con ese email',
+        409
+      );
+    }
+
+    const passHash = await bcrypt.hash(password, 8);
+
+    //Crear el usuario
+    await connection.query(
+      `
+        INSERT INTO users ( name, lastName, userName, email, password, birthDay, active ) VALUES ( ?, ?, ?, ?, ?, ?, 1)
+        `,
+      [name, lastName, userName, email, passHash, birthDay]
+    );
+
+    return userName;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
 //Escoger usuario por ID
 const getUserById = async (id) => {
   let connection;
@@ -170,6 +215,7 @@ const updateUser = async (id, avatar, name, lastName, userName, birthDay) => {
 };
 
 module.exports = {
+  createUserNoAvatar,
   createUser,
   getUserById,
   getUserByEmail,

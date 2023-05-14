@@ -7,7 +7,9 @@ const { generateError, createUpload, idToken } = require('../../helpers');
 const {
   createPost,
   searchPhoto,
-  getPhotoController,
+  getPhoto,
+  searchDeletePhoto,
+  deletePhoto,
 } = require('../database/photos');
 
 const { getAllPhotos } = require('../database/photos');
@@ -44,8 +46,10 @@ const newPhotosController = async (req, res, next) => {
       throw generateError('Debes colocar una imagen en tu publicación', 400);
     }
     let imageFileName;
-    const uploadsDir = path.join(__dirname, '../uploads/posts');
+    const uploadsDir = path.join(__dirname, '../uploads');
     await createUpload(uploadsDir);
+    const photosDir = path.join(__dirname, '../uploads/posts');
+    await createUpload(photosDir);
     const image = sharp(req.files.image.data);
     image.resize(1080);
     imageFileName = `${nanoid(24)}.jpg`;
@@ -68,8 +72,8 @@ const newPhotosController = async (req, res, next) => {
 //Controller para buscar posts por medio de una palabra que se encuentre en la descripción
 const searchPhotoController = async (req, res, next) => {
   try {
-    const { searchObj } = req.body;
-    const data = await searchPhoto(searchObj);
+    const { search } = req.body;
+    const data = await searchPhoto(search);
 
     if (data.length === 0) {
       throw generateError('No hay photos con esta busquedá', 404);
@@ -90,16 +94,41 @@ const getPhotoSingleController = async (req, res, next) => {
     const { authorization } = req.headers;
     if (authorization) {
       const token = await idToken(authorization);
-      const photos = await getPhotoController(req.params.id, token.id);
+      const photos = await getPhoto(req.params.id, token.id);
       res.send({
         status: 200,
         post: photos,
       });
     } else {
-      const photos = await getPhotoController(req.params.id);
+      const photos = await getPhoto(req.params.id);
       res.send({
         status: 200,
         post: photos,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Borrar un post o foto subida
+const deletePhotoController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (Number(id) === 0) {
+      throw generateError(
+        'Lo siento, pero el post que buscas no existe, intentalo de nuevo',
+        400
+      );
+    }
+    const search = await searchDeletePhoto(id);
+    // console.log(req.userId);
+    if (search[0].id_user === req.userId) {
+      console.log('eli');
+      await deletePhoto(id);
+      res.send({
+        status: 200,
+        message: 'Post eliminado con éxito',
       });
     }
   } catch (error) {
@@ -112,4 +141,5 @@ module.exports = {
   newPhotosController,
   searchPhotoController,
   getPhotoSingleController,
+  deletePhotoController,
 };
