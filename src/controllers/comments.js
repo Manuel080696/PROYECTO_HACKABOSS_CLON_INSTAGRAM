@@ -8,13 +8,13 @@ const {
 } = require('../database/comments');
 const { generateError } = require('../../helpers');
 
+//Controller para hacer un comentario
 const postCommentController = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { comment } = req.body;
     const userId = req.userId;
 
-    //para mirar se el post exist
     const existPost = await existingPost(id);
 
     if (req.body.comment === '') {
@@ -25,7 +25,6 @@ const postCommentController = async (req, res, next) => {
       throw generateError('El post que quiere comentar no existe', 403);
     }
 
-    //Comentamos en la photo
     await commentPhoto(userId, id, comment);
     res.send({
       status: 200,
@@ -36,18 +35,15 @@ const postCommentController = async (req, res, next) => {
   }
 };
 
+//Controller para borrar un comentario
 const unCommentController = async (req, res, next) => {
   try {
     const { id, id_comment } = req.params;
-
-    //para mirar se el post exist
     const validateComment = await existingComment(id, id_comment);
 
     if (validateComment.id_user !== req.userId) {
       throw generateError('No puedes borrar este comentario', 403);
     }
-
-    //Comentamos en la photo
     await deleteComment(id_comment);
 
     res.send({

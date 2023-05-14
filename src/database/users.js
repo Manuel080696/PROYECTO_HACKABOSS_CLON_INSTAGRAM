@@ -148,10 +148,32 @@ const userExists = async (id) => {
   }
 };
 
+// Actualizar los datos de un usuario
+const updateUser = async (id, avatar, name, lastName, userName, birthDay) => {
+  let connection;
+  try {
+    connection = await getDB();
+    await connection.query(
+      `
+        UPDATE users
+        SET avatar =?, name =?, lastName =?, userName =?, birthDay =?
+        WHERE id =?
+      `,
+      [avatar, name, lastName, userName, birthDay, id]
+    );
+    return;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
 module.exports = {
   createUser,
   getUserById,
   getUserByEmail,
   deleteUserById,
   userExists,
+  updateUser,
 };

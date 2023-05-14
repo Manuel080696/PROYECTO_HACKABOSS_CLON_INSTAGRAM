@@ -12,6 +12,7 @@ const {
 
 const { getAllPhotos } = require('../database/photos');
 
+//Controller para monstrar todos los posts
 const getPhotosController = async (req, res, next) => {
   try {
     const { authorization } = req.headers;
@@ -33,6 +34,8 @@ const getPhotosController = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
+  //Controller para crear un nuevo post
 };
 const newPhotosController = async (req, res, next) => {
   try {
@@ -62,6 +65,7 @@ const newPhotosController = async (req, res, next) => {
   }
 };
 
+//Controller para buscar posts por medio de una palabra que se encuentre en la descripción
 const searchPhotoController = async (req, res, next) => {
   try {
     const { searchObj } = req.body;
@@ -80,6 +84,7 @@ const searchPhotoController = async (req, res, next) => {
   }
 };
 
+//Controller para obtener un post por medio de su id
 const getPhotoSingleController = async (req, res, next) => {
   try {
     const { authorization } = req.headers;

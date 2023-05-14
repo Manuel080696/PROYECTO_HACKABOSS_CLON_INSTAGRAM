@@ -1,6 +1,7 @@
 'use strict';
 const { getDB } = require('./db');
 
+//Función para obtener todas las fotos con sus datos
 const getAllPhotos = async (userId) => {
   let connection;
   console.log(userId);
@@ -40,6 +41,7 @@ ORDER BY
   }
 };
 
+//Función para guardar un post
 const createPost = async (userId, place, description, image = '') => {
   let connection;
   try {
@@ -56,6 +58,7 @@ const createPost = async (userId, place, description, image = '') => {
   }
 };
 
+//Funcion para obtener las fotos por una palabra de la descripción
 const searchPhoto = async (description) => {
   let connection;
   try {
@@ -71,6 +74,7 @@ const searchPhoto = async (description) => {
   }
 };
 
+//Función para obtener un post por su id
 const getPhotoController = async (idPhoto, idUser) => {
   let connection;
   try {

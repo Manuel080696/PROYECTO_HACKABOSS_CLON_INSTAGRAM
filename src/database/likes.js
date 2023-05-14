@@ -1,6 +1,7 @@
 'use strict';
 const { getDB } = require('./db');
 
+//Función para saber si el usuario le ha dado un like a un post suyo
 const autoLike = async (id) => {
   let connection;
 
@@ -20,6 +21,7 @@ const autoLike = async (id) => {
   }
 };
 
+//Función para saber si el usuario ya le ha dado like a un post
 const existingLike = async (userId, id) => {
   let connection;
 
@@ -39,6 +41,7 @@ const existingLike = async (userId, id) => {
   }
 };
 
+//Función para registrar un nuevo like
 const newLike = async (userId, id) => {
   let connection;
 
@@ -56,6 +59,7 @@ const newLike = async (userId, id) => {
   }
 };
 
+//Función para contar los likes de un post
 const totalLike = async (userId, id) => {
   let connection;
 
@@ -77,6 +81,7 @@ const totalLike = async (userId, id) => {
   }
 };
 
+//Funcion para eliminar un like
 const deleteLikeById = async (id, userId) => {
   let connection;
 

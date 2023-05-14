@@ -1,4 +1,6 @@
 'use strict';
+//Crea la base de datos
+
 const { getDB } = require('./db');
 require('dotenv').config();
 

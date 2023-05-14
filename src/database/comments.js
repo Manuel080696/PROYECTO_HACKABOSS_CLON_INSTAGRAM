@@ -1,6 +1,7 @@
 'use strict';
 const { getDB } = require('./db');
 
+//Función para saber si existe un post
 const existingPost = async (id) => {
   let connection;
 
@@ -21,6 +22,7 @@ const existingPost = async (id) => {
   }
 };
 
+//Función para guardar un comentario
 const commentPhoto = async (userId, id, comment) => {
   let connection;
 
@@ -39,6 +41,7 @@ const commentPhoto = async (userId, id, comment) => {
   }
 };
 
+//Función para comprobar si existe un comentario
 const existingComment = async (id, id_comment) => {
   let connection;
 
@@ -58,6 +61,7 @@ const existingComment = async (id, id_comment) => {
   }
 };
 
+//Función para borrar un comentario
 const deleteComment = async (id) => {
   let connection;
 
@@ -78,6 +82,7 @@ const deleteComment = async (id) => {
   }
 };
 
+//Función para saber el total de comentarios
 const totalCommnets = async (id) => {
   let connection;
 

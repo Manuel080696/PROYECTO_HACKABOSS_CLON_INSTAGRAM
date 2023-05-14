@@ -16,6 +16,7 @@ const {
   getUserController,
   loginController,
   deleteUserController,
+  updateUserController,
 } = require('./src/controllers/users');
 
 /*Rutas Photos*/
@@ -43,7 +44,7 @@ app.post('/user', newUserController);
 app.get('/user/:id', isUserExists, getUserController);
 app.post('/login', loginController);
 app.delete('/user/:id', isUserAuth, deleteUserController);
-
+app.patch('/user/:id', isUserExists, isUserAuth, updateUserController);
 /*      Photos*/
 app.get('/photos', getPhotosController);
 app.post('/photos', isUserAuth, newPhotosController);

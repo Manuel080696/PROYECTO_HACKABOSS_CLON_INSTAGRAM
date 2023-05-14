@@ -1,6 +1,9 @@
 'use strict';
 const fs = require('fs/promises');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const sharp = require('sharp');
+const { nanoid } = require('nanoid');
 
 //Función para gestionar los errores
 const generateError = (message, status) => {
@@ -17,7 +20,8 @@ const createUpload = async (path) => {
     await fs.mkdir(path);
   }
 };
-//Funcion para obtener el id a traves del token
+
+//Función para obtener el id a traves del token
 const idToken = async (authorization) => {
   let token;
   try {
@@ -27,8 +31,22 @@ const idToken = async (authorization) => {
     throw generateError('Token incorrecto', 401);
   }
 };
+
+//Función para guardar el avatar
+const saveAvatar = async (avatar) => {
+  let imageFileName;
+  const uploadsDir = path.join(__dirname, '../uploads/avatar');
+  await createUpload(uploadsDir);
+  const image = sharp(avatar.data);
+  image.resize(320);
+  imageFileName = `${nanoid(24)}.jpg`;
+  await image.toFile(path.join(uploadsDir, imageFileName));
+  return imageFileName;
+};
+
 module.exports = {
   generateError,
   createUpload,
   idToken,
+  saveAvatar,
 };

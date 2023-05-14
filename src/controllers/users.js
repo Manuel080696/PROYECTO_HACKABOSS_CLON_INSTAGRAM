@@ -3,16 +3,18 @@ const bcrypt = require('bcrypt');
 const path = require('path');
 const sharp = require('sharp');
 const { nanoid } = require('nanoid');
-const { generateError, createUpload } = require('../../helpers');
+const { generateError, saveAvatar } = require('../../helpers');
 const {
   createUser,
   getUserById,
   getUserByEmail,
   deleteUserById,
+  updateUser,
 } = require('../database/users');
 const joi = require('joi');
 const jwt = require('jsonwebtoken');
 
+//Controller para dar de alta al usuario
 const newUserController = async (req, res, next) => {
   try {
     const { name, lastName, userName, email, password, birthDay } = req.body;
@@ -39,16 +41,10 @@ const newUserController = async (req, res, next) => {
       throw generateError(validation.error, 400);
     }
 
-    let imageFileName;
-    const uploadsDir = path.join(__dirname, '../uploads/avatar');
-    await createUpload(uploadsDir);
-    const image = sharp(req.files.avatar.data);
-    image.resize(320);
-    imageFileName = `${nanoid(24)}.jpg`;
-    await image.toFile(path.join(uploadsDir, imageFileName));
+    const userAvatar = await saveAvatar(req.files.avatar);
 
     const newUser = await createUser(
-      imageFileName,
+      userAvatar,
       name,
       lastName,
       userName,
@@ -66,6 +62,7 @@ const newUserController = async (req, res, next) => {
   }
 };
 
+//Controller para mostrar los datos de un usuario por su id
 const getUserController = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -80,6 +77,7 @@ const getUserController = async (req, res, next) => {
   }
 };
 
+//Controller para el login del usuario
 const loginController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -111,6 +109,7 @@ const loginController = async (req, res, next) => {
   }
 };
 
+//Controller para eliminar un usuario
 const deleteUserController = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -130,9 +129,42 @@ const deleteUserController = async (req, res, next) => {
   }
 };
 
+//Controller para actualizar un usuario
+const updateUserController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (req.userId !== parseInt(id)) {
+      throw generateError(
+        'No tienes permisos para actualizar a este usuario',
+        401
+      );
+    }
+    const { name, lastName, userName, birthDay } = req.body;
+    if (!name || !lastName || !userName || !birthDay) {
+      throw generateError('Debes enviar todos los campos', 400);
+    }
+    let updateAvatar;
+    if (req.files && req.files.avatar) {
+      const image = sharp(req.files.avatar.data);
+      const uploadsDir = path.join(__dirname, '../uploads/avatar');
+      image.resize(320);
+      updateAvatar = `${nanoid(24)}.jpg`;
+      await image.toFile(path.join(uploadsDir, updateAvatar));
+    }
+    await updateUser(id, updateAvatar, name, lastName, userName, birthDay);
+    res.send({
+      status: 'ok',
+      message: `El usuario con id:${id} ha sido actualizado`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   newUserController,
   getUserController,
   loginController,
   deleteUserController,
+  updateUserController,
 };
