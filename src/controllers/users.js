@@ -1,9 +1,7 @@
 'use strict';
 const bcrypt = require('bcrypt');
-const path = require('path');
-const sharp = require('sharp');
-const { nanoid } = require('nanoid');
-const { generateError, saveAvatar } = require('../../helpers');
+
+const { generateError, saveAvatar, deleteAvatar } = require('../../helpers');
 const {
   createUserNoAvatar,
   createUser,
@@ -11,6 +9,7 @@ const {
   getUserByEmail,
   deleteUserById,
   updateUser,
+  readAvatar,
 } = require('../database/users');
 const joi = require('joi');
 const jwt = require('jsonwebtoken');
@@ -158,11 +157,9 @@ const updateUserController = async (req, res, next) => {
     }
     let updateAvatar;
     if (req.files && req.files.avatar) {
-      const image = sharp(req.files.avatar.data);
-      const uploadsDir = path.join(__dirname, '../uploads/avatar');
-      image.resize(320);
-      updateAvatar = `${nanoid(24)}.jpg`;
-      await image.toFile(path.join(uploadsDir, updateAvatar));
+      const avatar = await readAvatar(id);
+      await deleteAvatar(avatar[0].avatar);
+      updateAvatar = await saveAvatar(req.files.avatar);
     }
     await updateUser(id, updateAvatar, name, lastName, userName, birthDay);
     res.send({

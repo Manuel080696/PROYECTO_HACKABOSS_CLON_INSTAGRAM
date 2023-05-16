@@ -214,6 +214,27 @@ const updateUser = async (id, avatar, name, lastName, userName, birthDay) => {
   }
 };
 
+//Función para leer el avatar del usuario
+const readAvatar = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+    const avatar = await connection.query(
+      `
+        SELECT avatar
+        FROM users
+        WHERE id =?
+      `,
+      [id]
+    );
+    return avatar[0];
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
 module.exports = {
   createUserNoAvatar,
   createUser,
@@ -222,4 +243,5 @@ module.exports = {
   deleteUserById,
   userExists,
   updateUser,
+  readAvatar,
 };

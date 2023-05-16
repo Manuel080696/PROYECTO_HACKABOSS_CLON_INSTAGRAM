@@ -35,8 +35,6 @@ const idToken = async (authorization) => {
 //Función para guardar el avatar
 const saveAvatar = async (avatar) => {
   let imageFileName;
-  const pathDir = path.join(__dirname, './uploads');
-  await createUpload(pathDir);
   const uploadsDir = path.join(__dirname, '/uploads/avatar');
   await createUpload(uploadsDir);
   const image = sharp(avatar.data);
@@ -46,9 +44,20 @@ const saveAvatar = async (avatar) => {
   return imageFileName;
 };
 
+//Función para borrar el avatar antiguo
+const deleteAvatar = async (avatar) => {
+  try {
+    await fs.unlink(`./uploads/avatar/${avatar}`);
+    return;
+  } catch (error) {
+    throw generateError('Hubo un error al borrar el archivo', 401);
+  }
+};
+
 module.exports = {
   generateError,
   createUpload,
   idToken,
   saveAvatar,
+  deleteAvatar,
 };
