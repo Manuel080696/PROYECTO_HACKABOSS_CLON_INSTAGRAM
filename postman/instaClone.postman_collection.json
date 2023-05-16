@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "abc86ef5-e1d7-43ac-a811-39b4b9d3fcd3",
+		"_postman_id": "bf1bb397-cbd4-4c98-b240-09f2447bea1b",
 		"name": "instaClone",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "27145709"
@@ -160,7 +160,13 @@
 					"name": "deleteUserController",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{TOKEN}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "http://127.0.0.1:3000/user/:userId",
 							"protocol": "http",
