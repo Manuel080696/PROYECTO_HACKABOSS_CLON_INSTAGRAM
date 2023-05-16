@@ -46,14 +46,14 @@ const newPhotosController = async (req, res, next) => {
       throw generateError('Debes colocar una imagen en tu publicación', 400);
     }
     let imageFileName;
-    const uploadsDir = path.join(__dirname, '../uploads');
+    const uploadsDir = path.join(__dirname, '../../uploads');
     await createUpload(uploadsDir);
-    const photosDir = path.join(__dirname, '../uploads/posts');
+    const photosDir = path.join(__dirname, '../../uploads/posts');
     await createUpload(photosDir);
     const image = sharp(req.files.image.data);
     image.resize(1080);
     imageFileName = `${nanoid(24)}.jpg`;
-    await image.toFile(path.join(uploadsDir, imageFileName));
+    await image.toFile(path.join(photosDir, imageFileName));
     const photoId = await createPost(
       req.userId,
       place,
@@ -115,22 +115,24 @@ const getPhotoSingleController = async (req, res, next) => {
 const deletePhotoController = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (Number(id) === 0) {
+    const search = await searchDeletePhoto(id);
+
+    if (search.length === 0) {
+      throw generateError('No existe el post indicado', 403);
+    }
+
+    // console.log(req.userId);
+    if (search[0].id_user !== req.userId) {
       throw generateError(
-        'Lo siento, pero el post que buscas no existe, intentalo de nuevo',
-        400
+        'Este post pertenece a otro usuario, no puedes eliminarlo',
+        403
       );
     }
-    const search = await searchDeletePhoto(id);
-    // console.log(req.userId);
-    if (search[0].id_user === req.userId) {
-      console.log('eli');
-      await deletePhoto(id);
-      res.send({
-        status: 200,
-        message: 'Post eliminado con éxito',
-      });
-    }
+    await deletePhoto(id);
+    res.send({
+      status: 200,
+      message: 'Post eliminado con éxito',
+    });
   } catch (error) {
     next(error);
   }

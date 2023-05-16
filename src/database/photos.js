@@ -147,7 +147,6 @@ const searchDeletePhoto = async (id) => {
       `,
       [id]
     );
-
     return result;
   } finally {
     if (connection) connection.release();

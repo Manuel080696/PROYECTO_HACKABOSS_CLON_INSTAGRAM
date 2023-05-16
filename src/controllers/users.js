@@ -156,12 +156,16 @@ const updateUserController = async (req, res, next) => {
       throw generateError('Debes enviar todos los campos', 400);
     }
     let updateAvatar;
+    const avatar = await readAvatar(id);
     if (req.files && req.files.avatar) {
-      const avatar = await readAvatar(id);
-      await deleteAvatar(avatar[0].avatar);
-      updateAvatar = await saveAvatar(req.files.avatar);
+      if (avatar.avatar === null) {
+        updateAvatar = await saveAvatar(req.files.avatar);
+      } else {
+        await deleteAvatar(avatar.avatar);
+        updateAvatar = await saveAvatar(req.files.avatar);
+      }
+      await updateUser(id, updateAvatar, name, lastName, userName, birthDay);
     }
-    await updateUser(id, updateAvatar, name, lastName, userName, birthDay);
     res.send({
       status: 'ok',
       message: `El usuario con id:${id} ha sido actualizado`,

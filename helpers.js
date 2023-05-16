@@ -35,12 +35,14 @@ const idToken = async (authorization) => {
 //Función para guardar el avatar
 const saveAvatar = async (avatar) => {
   let imageFileName;
-  const uploadsDir = path.join(__dirname, '/uploads/avatar');
+  const uploadsDir = path.join(__dirname, './uploads');
   await createUpload(uploadsDir);
+  const avatarDir = path.join(__dirname, './uploads/avatar');
+  await createUpload(avatarDir);
   const image = sharp(avatar.data);
   image.resize(320);
   imageFileName = `${nanoid(24)}.jpg`;
-  await image.toFile(path.join(uploadsDir, imageFileName));
+  await image.toFile(path.join(avatarDir, imageFileName));
   return imageFileName;
 };
 

@@ -219,7 +219,7 @@ const readAvatar = async (id) => {
   let connection;
   try {
     connection = await getDB();
-    const avatar = await connection.query(
+    const [avatar] = await connection.query(
       `
         SELECT avatar
         FROM users
@@ -227,6 +227,7 @@ const readAvatar = async (id) => {
       `,
       [id]
     );
+    console.log(avatar[0]);
     return avatar[0];
   } finally {
     if (connection) {

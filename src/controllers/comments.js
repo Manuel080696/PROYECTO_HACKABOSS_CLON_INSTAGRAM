@@ -7,6 +7,7 @@ const {
   deleteComment,
 } = require('../database/comments');
 const { generateError } = require('../../helpers');
+const { searchDeletePhoto } = require('../database/photos');
 
 //Controller para hacer un comentario
 const postCommentController = async (req, res, next) => {
@@ -41,6 +42,11 @@ const unCommentController = async (req, res, next) => {
     const { id, id_comment } = req.params;
     const validateComment = await existingComment(id, id_comment);
 
+    const existsPost = await searchDeletePhoto(id);
+
+    if (existsPost.length === 0) {
+      throw generateError('No existe el post indicado', 403);
+    }
     if (validateComment.id_user !== req.userId) {
       throw generateError('No puedes borrar este comentario', 403);
     }

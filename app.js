@@ -51,7 +51,7 @@ app.get('/photos', getPhotosController);
 app.post('/photos', isUserAuth, newPhotosController);
 app.get('/photos/search', searchPhotoController);
 app.get('/photos/:id', getPhotoSingleController);
-app.delete('/photos/:id', isUserExists, isUserAuth, deletePhotoController);
+app.delete('/photos/:id', isUserAuth, deletePhotoController);
 
 /*      Likes*/
 app.post('/photos/:id/like', isUserAuth, likeController);
