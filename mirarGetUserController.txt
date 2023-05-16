@@ -1,6 +1,0 @@
-SELECT c.nome_do_cliente, 
-       (SELECT GROUP_CONCAT(f.nome_do_arquivo SEPARATOR ', ') 
-        FROM fotos f 
-        WHERE f.id_do_cliente = c.id_do_cliente) AS caminho_das_fotos 
-FROM clientes c 
-WHERE c.id_do_cliente = 1;

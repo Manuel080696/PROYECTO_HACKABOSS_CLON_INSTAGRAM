@@ -1,14 +1,20 @@
 'use strict';
 const bcrypt = require('bcrypt');
+
+const { generateError, saveAvatar, deleteAvatar } = require('../../helpers');
 const {
+  createUserNoAvatar,
   createUser,
   getUserById,
   getUserByEmail,
+  deleteUserById,
+  updateUser,
+  readAvatar,
 } = require('../database/users');
 const joi = require('joi');
 const jwt = require('jsonwebtoken');
-const { generateError } = require('../../helpers');
 
+//Controller para dar de alta al usuario
 const newUserController = async (req, res, next) => {
   try {
     const { name, lastName, userName, email, password, birthDay } = req.body;
@@ -19,18 +25,39 @@ const newUserController = async (req, res, next) => {
       email: joi.string().email().required(),
       password: joi.string().min(8).required(),
       birthDay: joi.date(),
+      avatar: joi.object({
+        filename: joi.string().required(),
+        mimetype: joi
+          .string()
+          .valid('image/png', 'image/jpeg', 'image/gif')
+          .required(),
+        size: joi.number().max(5000000).required(),
+        path: joi.string().required(),
+      }),
     });
 
     const validation = schema.validate(req.body);
     if (validation.error) {
-      console.error(validation.error.message);
+      throw generateError(validation.error, 400);
+    }
+    if (!req.files || !req.files.avatar) {
+      const newUser = await createUserNoAvatar(
+        name,
+        lastName,
+        userName,
+        email,
+        password,
+        birthDay
+      );
       res.send({
-        status: 'error',
-        message: validation.error.message,
+        status: 202,
+        message: `Usuario ${newUser} creado correctamente`,
       });
     }
 
+    const userAvatar = await saveAvatar(req.files.avatar);
     const newUser = await createUser(
+      userAvatar,
       name,
       lastName,
       userName,
@@ -38,7 +65,6 @@ const newUserController = async (req, res, next) => {
       password,
       birthDay
     );
-
     res.send({
       status: 202,
       message: `Usuario ${newUser} creado correctamente`,
@@ -48,6 +74,7 @@ const newUserController = async (req, res, next) => {
   }
 };
 
+//Controller para mostrar los datos de un usuario por su id
 const getUserController = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -62,6 +89,7 @@ const getUserController = async (req, res, next) => {
   }
 };
 
+//Controller para el login del usuario
 const loginController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -93,8 +121,55 @@ const loginController = async (req, res, next) => {
   }
 };
 
-const regCodeController = async (req, res, next) => {
+//Controller para eliminar un usuario
+const deleteUserController = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    if (req.userId !== parseInt(id)) {
+      throw generateError(
+        'No tienes permisos para eliminar a este usuario',
+        401
+      );
+    }
+    await deleteUserById(id);
+    res.send({
+      status: 'ok',
+      message: `El usuario con id:${id} ha sido eliminado`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//Controller para actualizar un usuario
+const updateUserController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (req.userId !== parseInt(id)) {
+      throw generateError(
+        'No tienes permisos para actualizar a este usuario',
+        401
+      );
+    }
+    const { name, lastName, userName, birthDay } = req.body;
+    if (!name || !lastName || !userName || !birthDay) {
+      throw generateError('Debes enviar todos los campos', 400);
+    }
+    let updateAvatar;
+    const avatar = await readAvatar(id);
+    if (req.files && req.files.avatar) {
+      if (avatar.avatar === null) {
+        updateAvatar = await saveAvatar(req.files.avatar);
+      } else {
+        await deleteAvatar(avatar.avatar);
+        updateAvatar = await saveAvatar(req.files.avatar);
+      }
+      await updateUser(id, updateAvatar, name, lastName, userName, birthDay);
+    }
+    res.send({
+      status: 'ok',
+      message: `El usuario con id:${id} ha sido actualizado`,
+    });
   } catch (error) {
     next(error);
   }
@@ -104,5 +179,6 @@ module.exports = {
   newUserController,
   getUserController,
   loginController,
-  regCodeController,
+  deleteUserController,
+  updateUserController,
 };

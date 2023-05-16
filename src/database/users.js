@@ -5,6 +5,7 @@ const { generateError } = require('../../helpers');
 
 //Crear un usuario
 const createUser = async (
+  avatar,
   name,
   lastName,
   userName,
@@ -29,13 +30,58 @@ const createUser = async (
         409
       );
     }
-    //Encriptar la password
+
     const passHash = await bcrypt.hash(password, 8);
 
     //Crear el usuario
     await connection.query(
       `
-        INSERT INTO users (name, lastName, userName, email, password, birthDay) VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO users (avatar, name, lastName, userName, email, password, birthDay, active ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+        `,
+      [avatar, name, lastName, userName, email, passHash, birthDay]
+    );
+
+    return userName;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+//Crear un usuario sin avatar asignado
+const createUserNoAvatar = async (
+  name,
+  lastName,
+  userName,
+  email,
+  password,
+  birthDay
+) => {
+  let connection;
+  try {
+    connection = await getDB();
+
+    const [user] = await connection.query(
+      `
+        SELECT id FROM users WHERE email=?
+        `,
+      [email]
+    );
+
+    if (user.length > 0) {
+      throw generateError(
+        'Ya existe un usuario en la base de datos con ese email',
+        409
+      );
+    }
+
+    const passHash = await bcrypt.hash(password, 8);
+
+    //Crear el usuario
+    await connection.query(
+      `
+        INSERT INTO users ( name, lastName, userName, email, password, birthDay, active ) VALUES ( ?, ?, ?, ?, ?, ?, 1)
         `,
       [name, lastName, userName, email, passHash, birthDay]
     );
@@ -56,13 +102,13 @@ const getUserById = async (id) => {
 
     const result = await connection.query(
       `
-      SELECT u.avatar, u.userName, u.birthDay  FROM users u WHERE id=?;
+      SELECT u.avatar, u.userName, u.name, u.lastName, u.dateCreation FROM users u WHERE id=?;
         `,
       [id]
     );
     const final = await connection.query(
       `
-        SELECT p.photoName FROM photos p WHERE p.id_user=?
+        SELECT id, photoName FROM photos WHERE id_user=?
         `,
       [id]
     );
@@ -106,9 +152,97 @@ const getUserByEmail = async (email) => {
     }
   }
 };
+//Borrar usuario por el id
+const deleteUserById = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+    await connection.query(
+      `
+    UPDATE users
+    SET avatar = NULL, name ='[borrado]', lastName = '[borrado]', userName = '[borrado]', password = '[borrado]', 
+    birthday = '[borrado]', role = '[borrado]', active = 0, deleted = 1, lastAuthUpdate = ?
+    WHERE id = ?`,
+      [new Date(), id]
+    );
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+// Para saber si existe el usuario
+const userExists = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+    const user = await connection.query(
+      `
+        SELECT id
+        FROM users
+        WHERE id=?
+      `,
+      [id]
+    );
+    return user;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+// Actualizar los datos de un usuario
+const updateUser = async (id, avatar, name, lastName, userName, birthDay) => {
+  let connection;
+  try {
+    connection = await getDB();
+    await connection.query(
+      `
+        UPDATE users
+        SET avatar =?, name =?, lastName =?, userName =?, birthDay =?
+        WHERE id =?
+      `,
+      [avatar, name, lastName, userName, birthDay, id]
+    );
+    return;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+//Función para leer el avatar del usuario
+const readAvatar = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+    const [avatar] = await connection.query(
+      `
+        SELECT avatar
+        FROM users
+        WHERE id =?
+      `,
+      [id]
+    );
+    console.log(avatar[0]);
+    return avatar[0];
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
 
 module.exports = {
+  createUserNoAvatar,
   createUser,
   getUserById,
   getUserByEmail,
+  deleteUserById,
+  userExists,
+  updateUser,
+  readAvatar,
 };

@@ -2,24 +2,67 @@
 
 const express = require('express');
 const morgan = require('morgan');
+const fileUpload = require('express-fileupload');
 
 const app = express();
+app.use(fileUpload());
 app.use(morgan('dev'));
 app.use(express.json());
 
-/**Rutas*/
+app.use('/uploads', express.static('./uploads'));
+/**Rutas Users*/
 const {
   newUserController,
   getUserController,
   loginController,
-  regCodeController,
+  deleteUserController,
+  updateUserController,
 } = require('./src/controllers/users');
+
+/*Rutas Photos*/
+const {
+  getPhotosController,
+  newPhotosController,
+  searchPhotoController,
+  getPhotoSingleController,
+  deletePhotoController,
+} = require('./src/controllers/photos');
+
+/*Rutas Likes */
+const { likeController } = require('./src/controllers/likes');
+
+/*Rutas Comments */
+const {
+  postCommentController,
+  unCommentController,
+} = require('./src/controllers/comments');
+
+const { isUserAuth } = require('./src/middleware/isUserAuth');
+const { isUserExists } = require('./src/middleware/isUserExists');
 
 /*     Users*/
 app.post('/user', newUserController);
-app.get('/user/:id', getUserController);
+app.get('/user/:id', isUserExists, getUserController);
 app.post('/login', loginController);
-app.get('/users/validate/:regCode', regCodeController);
+app.delete('/user/:id', isUserAuth, deleteUserController);
+app.patch('/user/:id', isUserExists, isUserAuth, updateUserController);
+/*      Photos*/
+app.get('/photos', getPhotosController);
+app.post('/photos', isUserAuth, newPhotosController);
+app.get('/photos/search', searchPhotoController);
+app.get('/photos/:id', getPhotoSingleController);
+app.delete('/photos/:id', isUserAuth, deletePhotoController);
+
+/*      Likes*/
+app.post('/photos/:id/like', isUserAuth, likeController);
+
+/*      Comentarios*/
+app.post('/photos/:id/comment', isUserAuth, postCommentController);
+app.delete(
+  '/photos/:id/uncomment/:id_comment',
+  isUserAuth,
+  unCommentController
+);
 
 //Middleware 404 not found
 app.use((req, res) => {
