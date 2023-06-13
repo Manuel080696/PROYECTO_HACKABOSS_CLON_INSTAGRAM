@@ -32,14 +32,22 @@ const createUser = async (
     }
 
     const passHash = await bcrypt.hash(password, 8);
-
-    //Crear el usuario
-    await connection.query(
-      `
+    if (avatar) {
+      //Crear el usuario
+      await connection.query(
+        `
         INSERT INTO users (avatar, name, lastName, userName, email, password, birthDay, active ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)
         `,
-      [avatar, name, lastName, userName, email, passHash, birthDay]
-    );
+        [avatar, name, lastName, userName, email, passHash, birthDay]
+      );
+    } else {
+      await connection.query(
+        `
+    INSERT INTO users ( name, lastName, userName, email, password, birthDay, active ) VALUES ( ?, ?, ?, ?, ?, ?, 1)
+    `,
+        [name, lastName, userName, email, passHash, birthDay]
+      );
+    }
 
     return userName;
   } finally {
@@ -108,7 +116,7 @@ const getUserById = async (id) => {
     );
     const final = await connection.query(
       `
-        SELECT id, photoName FROM photos WHERE id_user=?
+        SELECT id AS PhotoID, photoName, place, description FROM photos WHERE id_user=?
         `,
       [id]
     );
@@ -227,7 +235,6 @@ const readAvatar = async (id) => {
       `,
       [id]
     );
-    console.log(avatar[0]);
     return avatar[0];
   } finally {
     if (connection) {

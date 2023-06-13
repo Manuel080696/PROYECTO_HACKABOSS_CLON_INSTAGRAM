@@ -2,20 +2,22 @@
 const { getDB } = require('./db');
 
 //Función para obtener todas las fotos con sus datos
-const getAllPhotos = async (userId) => {
+const getAllPhotos = async (userId, search) => {
   let connection;
   console.log(userId);
 
   try {
     connection = await getDB();
-    const [result] = await connection.query(
-      `
+    if (search && userId) {
+      const [result] = await connection.query(
+        `
       SELECT 
       p.id AS photoID, 
       p.photoName,
       p.description,
       p.place, 
       p.date,
+      u.id AS userID,
       u.avatar,
       u.userName AS userPosted,
       COUNT(DISTINCT l.id) AS numLikes,
@@ -27,15 +29,82 @@ const getAllPhotos = async (userId) => {
       LEFT JOIN likes l ON p.id = l.id_photo
       LEFT JOIN comments c ON p.id = c.id_photo
 
+  WHERE 
+      description LIKE ?
+
   GROUP BY 
   p.id
 ORDER BY 
   p.date DESC;
     `,
-      [userId]
-    );
+        [userId, `%${search}%`]
+      );
 
-    return result;
+      return result;
+    } else if (search) {
+      const [result] = await connection.query(
+        `
+      SELECT 
+      p.id AS photoID, 
+      p.photoName,
+      p.description,
+      p.place, 
+      p.date,
+      u.id AS userID,
+      u.avatar,
+      u.userName AS userPosted,
+      COUNT(DISTINCT l.id) AS numLikes,
+      COUNT(DISTINCT c.id) AS numComments,
+      MAX(CASE WHEN l.id_user = 0 THEN 1 ELSE 0 END) AS dioLike
+  FROM 
+      photos p
+      JOIN users u ON p.id_user = u.id
+      LEFT JOIN likes l ON p.id = l.id_photo
+      LEFT JOIN comments c ON p.id = c.id_photo
+
+  WHERE 
+      description LIKE ?
+
+  GROUP BY 
+  p.id
+ORDER BY 
+  p.date DESC;
+    `,
+        [`%${search}%`]
+      );
+
+      return result;
+    } else {
+      const [result] = await connection.query(
+        `
+        SELECT 
+        p.id AS photoID, 
+        p.photoName,
+        p.description,
+        p.place, 
+        p.date,
+        u.id AS userID,
+        u.avatar,
+        u.userName AS userPosted,
+        COUNT(DISTINCT l.id) AS numLikes,
+        COUNT(DISTINCT c.id) AS numComments,
+        MAX(CASE WHEN l.id_user = ? THEN 1 ELSE 0 END) AS dioLike
+    FROM 
+        photos p
+        JOIN users u ON p.id_user = u.id
+        LEFT JOIN likes l ON p.id = l.id_photo
+        LEFT JOIN comments c ON p.id = c.id_photo
+  
+    GROUP BY 
+    p.id
+  ORDER BY 
+    p.date DESC;
+      `,
+        [userId]
+      );
+
+      return result;
+    }
   } finally {
     if (connection) connection.release();
   }
@@ -92,11 +161,13 @@ const getPhoto = async (idPhoto, idUser) => {
       COUNT(DISTINCT l.id) AS numeroLikes,
       COUNT(DISTINCT c.id) AS numComments,
       MAX(CASE WHEN l.id_user = ? THEN 1 ELSE 0 END) AS dioLike
+      
   FROM 
       photos p
       JOIN users u ON p.id_user = u.id
       LEFT JOIN likes l ON p.id = l.id_photo
       LEFT JOIN comments c ON p.id = c.id_photo
+     
 WHERE p.id = ? 
   GROUP BY 
   p.id
@@ -108,13 +179,16 @@ ORDER BY
 
     const [comments] = await connection.query(
       `
-      SELECT id, date, text, id_user
-      FROM comments
-      WHERE id_photo =?
+      SELECT c.id, c.date, c.text, c.id_user, u.userName
+      FROM comments c, users u
+      WHERE id_photo =? && c.id_user = u.id
       `,
       [idPhoto]
     );
 
+    if (data.length === 0) {
+      return data;
+    }
     const result = {
       id: data[0].id,
       photoName: data[0].photoName,
@@ -127,7 +201,6 @@ ORDER BY
       isLike: data[0].dioLike,
       comments: comments,
     };
-
     return result;
   } finally {
     if (connection) connection.release();
@@ -141,7 +214,7 @@ const searchDeletePhoto = async (id) => {
     connection = await getDB();
     const [result] = await connection.query(
       `
-      SELECT id, id_user
+      SELECT id, id_user,photoName
       FROM photos
       WHERE id = ?;
       `,
@@ -180,7 +253,6 @@ const deletePhoto = async (id) => {
       `,
       [id]
     );
-    console.log('oli');
   } finally {
     if (connection) connection.release();
   }

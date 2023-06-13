@@ -1,10 +1,15 @@
 'use strict';
 
+require('dotenv').config();
+const path = require('path');
+const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const fileUpload = require('express-fileupload');
+const { PORT } = process.env;
 
 const app = express();
+app.use(cors());
 app.use(fileUpload());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -45,7 +50,8 @@ app.post('/user', newUserController);
 app.get('/user/:id', isUserExists, getUserController);
 app.post('/login', loginController);
 app.delete('/user/:id', isUserAuth, deleteUserController);
-app.patch('/user/:id', isUserExists, isUserAuth, updateUserController);
+app.patch('/user', isUserAuth, updateUserController);
+
 /*      Photos*/
 app.get('/photos', getPhotosController);
 app.post('/photos', isUserAuth, newPhotosController);
@@ -81,6 +87,8 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(3000, () => {
-  console.log('El servidor está escuchando en el puerto 3000');
+app.use(express.static(path.join(__dirname, 'uploads')));
+
+app.listen(PORT, () => {
+  console.log(`El servidor está escuchando en el puerto ${PORT}`);
 });

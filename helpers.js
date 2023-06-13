@@ -56,10 +56,21 @@ const deleteAvatar = async (avatar) => {
   }
 };
 
+//Función para borrar una foto
+const deletephotoUploads = async (photo) => {
+  try {
+    await fs.unlink(`./uploads/posts/${photo}`);
+    return;
+  } catch (error) {
+    throw generateError('Hubo un error al borrar el archivo', 401);
+  }
+};
+
 module.exports = {
   generateError,
   createUpload,
   idToken,
   saveAvatar,
   deleteAvatar,
+  deletephotoUploads,
 };

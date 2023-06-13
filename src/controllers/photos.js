@@ -3,7 +3,12 @@ const path = require('path');
 const sharp = require('sharp');
 
 const { nanoid } = require('nanoid');
-const { generateError, createUpload, idToken } = require('../../helpers');
+const {
+  generateError,
+  createUpload,
+  idToken,
+  deletephotoUploads,
+} = require('../../helpers');
 const {
   createPost,
   searchPhoto,
@@ -17,10 +22,34 @@ const { getAllPhotos } = require('../database/photos');
 //Controller para monstrar todos los posts
 const getPhotosController = async (req, res, next) => {
   try {
+    const { search } = req.query;
     const { authorization } = req.headers;
+    console.log(search);
+
     if (authorization) {
       const token = await idToken(authorization);
-      const photos = await getAllPhotos(token.id);
+      if (search) {
+        const photos = await getAllPhotos(token.id, search);
+        if (photos.length === 0) {
+          throw generateError('No hay photos con esta busquedá', 404);
+        }
+
+        res.send({
+          status: 200,
+          data: photos,
+        });
+      } else {
+        const photos = await getAllPhotos(token.id);
+        res.send({
+          status: 200,
+          data: photos,
+        });
+      }
+    } else if (search) {
+      const photos = await getAllPhotos(undefined, search);
+      if (photos.length === 0) {
+        throw generateError('No hay photos con esta busquedá', 404);
+      }
 
       res.send({
         status: 200,
@@ -42,28 +71,30 @@ const getPhotosController = async (req, res, next) => {
 const newPhotosController = async (req, res, next) => {
   try {
     const { place, description } = req.body;
-    if (!req.files && req.files.image) {
+    if (req.files && req.files.image) {
+      let imageFileName;
+      const uploadsDir = path.join(__dirname, '../../uploads');
+      await createUpload(uploadsDir);
+      const photosDir = path.join(__dirname, '../../uploads/posts');
+      await createUpload(photosDir);
+      const image = sharp(req.files.image.data);
+      image.resize(1080);
+      imageFileName = `${nanoid(24)}.jpg`;
+      await image.toFile(path.join(photosDir, imageFileName));
+      const photoId = await createPost(
+        req.userId,
+        place,
+        description,
+        imageFileName
+      );
+      res.send({
+        status: 201,
+        message: `Post con id: ${photoId} creado correctamente`,
+        data: [{ id: req.userId, place, description, imageFileName }],
+      });
+    } else {
       throw generateError('Debes colocar una imagen en tu publicación', 400);
     }
-    let imageFileName;
-    const uploadsDir = path.join(__dirname, '../../uploads');
-    await createUpload(uploadsDir);
-    const photosDir = path.join(__dirname, '../../uploads/posts');
-    await createUpload(photosDir);
-    const image = sharp(req.files.image.data);
-    image.resize(1080);
-    imageFileName = `${nanoid(24)}.jpg`;
-    await image.toFile(path.join(photosDir, imageFileName));
-    const photoId = await createPost(
-      req.userId,
-      place,
-      description,
-      imageFileName
-    );
-    res.send({
-      status: 200,
-      message: `Post con id: ${photoId} creado correctamente`,
-    });
   } catch (error) {
     next(error);
   }
@@ -72,7 +103,7 @@ const newPhotosController = async (req, res, next) => {
 //Controller para buscar posts por medio de una palabra que se encuentre en la descripción
 const searchPhotoController = async (req, res, next) => {
   try {
-    const { search } = req.body;
+    const { search } = req.query;
     const data = await searchPhoto(search);
 
     if (data.length === 0) {
@@ -95,15 +126,21 @@ const getPhotoSingleController = async (req, res, next) => {
     if (authorization) {
       const token = await idToken(authorization);
       const photos = await getPhoto(req.params.id, token.id);
+      if (photos.length === 0) {
+        throw generateError('No existe el post', 404);
+      }
       res.send({
         status: 200,
-        post: photos,
+        data: photos,
       });
     } else {
       const photos = await getPhoto(req.params.id);
+      if (photos.length === 0) {
+        throw generateError('No existe el post', 404);
+      }
       res.send({
         status: 200,
-        post: photos,
+        data: photos,
       });
     }
   } catch (error) {
@@ -116,12 +153,12 @@ const deletePhotoController = async (req, res, next) => {
   try {
     const { id } = req.params;
     const search = await searchDeletePhoto(id);
+    console.log(search);
 
     if (search.length === 0) {
       throw generateError('No existe el post indicado', 403);
     }
 
-    // console.log(req.userId);
     if (search[0].id_user !== req.userId) {
       throw generateError(
         'Este post pertenece a otro usuario, no puedes eliminarlo',
@@ -129,9 +166,10 @@ const deletePhotoController = async (req, res, next) => {
       );
     }
     await deletePhoto(id);
+    await deletephotoUploads(search[0].photoName);
     res.send({
       status: 200,
-      message: 'Post eliminado con éxito',
+      message: `El post ${id} eliminado con éxito `,
     });
   } catch (error) {
     next(error);

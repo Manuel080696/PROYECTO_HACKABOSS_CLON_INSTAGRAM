@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 
 const { generateError, saveAvatar, deleteAvatar } = require('../../helpers');
 const {
-  createUserNoAvatar,
   createUser,
   getUserById,
   getUserByEmail,
@@ -17,13 +16,15 @@ const jwt = require('jsonwebtoken');
 //Controller para dar de alta al usuario
 const newUserController = async (req, res, next) => {
   try {
-    const { name, lastName, userName, email, password, birthDay } = req.body;
+    const { name, lastName, userName, email, password, password2, birthDay } =
+      req.body;
     const schema = joi.object().keys({
       name: joi.string().min(3).max(20).required(),
       lastName: joi.string().min(3).max(40).required(),
       userName: joi.string().min(3).max(20).required(),
       email: joi.string().email().required(),
       password: joi.string().min(8).required(),
+      password2: joi.string().min(8).required(),
       birthDay: joi.date(),
       avatar: joi.object({
         filename: joi.string().required(),
@@ -40,22 +41,13 @@ const newUserController = async (req, res, next) => {
     if (validation.error) {
       throw generateError(validation.error, 400);
     }
-    if (!req.files || !req.files.avatar) {
-      const newUser = await createUserNoAvatar(
-        name,
-        lastName,
-        userName,
-        email,
-        password,
-        birthDay
-      );
-      res.send({
-        status: 202,
-        message: `Usuario ${newUser} creado correctamente`,
-      });
+    let userAvatar;
+    if (req.files && req.files.avatar) {
+      userAvatar = await saveAvatar(req.files.avatar);
+    } else {
+      userAvatar = null;
     }
 
-    const userAvatar = await saveAvatar(req.files.avatar);
     const newUser = await createUser(
       userAvatar,
       name,
@@ -66,7 +58,7 @@ const newUserController = async (req, res, next) => {
       birthDay
     );
     res.send({
-      status: 202,
+      status: 201,
       message: `Usuario ${newUser} creado correctamente`,
     });
   } catch (error) {
@@ -114,7 +106,7 @@ const loginController = async (req, res, next) => {
 
     res.send({
       status: 'ok',
-      data: token,
+      data: [{ token, id: user.id, name: user.name, email }],
     });
   } catch (error) {
     next(error);
@@ -144,8 +136,7 @@ const deleteUserController = async (req, res, next) => {
 //Controller para actualizar un usuario
 const updateUserController = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    if (req.userId !== parseInt(id)) {
+    if (!req.userId) {
       throw generateError(
         'No tienes permisos para actualizar a este usuario',
         401
@@ -156,7 +147,7 @@ const updateUserController = async (req, res, next) => {
       throw generateError('Debes enviar todos los campos', 400);
     }
     let updateAvatar;
-    const avatar = await readAvatar(id);
+    const avatar = await readAvatar(req.userId);
     if (req.files && req.files.avatar) {
       if (avatar.avatar === null) {
         updateAvatar = await saveAvatar(req.files.avatar);
@@ -164,11 +155,19 @@ const updateUserController = async (req, res, next) => {
         await deleteAvatar(avatar.avatar);
         updateAvatar = await saveAvatar(req.files.avatar);
       }
-      await updateUser(id, updateAvatar, name, lastName, userName, birthDay);
+      await updateUser(
+        req.userId,
+        updateAvatar,
+        name,
+        lastName,
+        userName,
+        birthDay
+      );
     }
     res.send({
       status: 'ok',
-      message: `El usuario con id:${id} ha sido actualizado`,
+      message: `El usuario con id:${req.userId} ha sido actualizado`,
+      data: [{ name, lastName, userName, birthDay }],
     });
   } catch (error) {
     next(error);

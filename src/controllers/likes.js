@@ -31,8 +31,12 @@ const likeController = async (req, res, next) => {
     const totalLikes = await totalLike(userId, id);
     res.send({
       status: 200,
-      likes: totalLikes,
-      vote: vote,
+      data: [
+        {
+          likes: totalLikes,
+          vote: vote,
+        },
+      ],
     });
   } catch (error) {
     next(error);

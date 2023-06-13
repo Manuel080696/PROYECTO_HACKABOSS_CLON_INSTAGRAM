@@ -26,10 +26,11 @@ const postCommentController = async (req, res, next) => {
       throw generateError('El post que quiere comentar no existe', 403);
     }
 
-    await commentPhoto(userId, id, comment);
+    const data = await commentPhoto(userId, id, comment);
     res.send({
-      status: 200,
+      status: 201,
       message: `Comentario añadido correctamente en post:${id}`,
+      data: data,
     });
   } catch (error) {
     next(error);
@@ -41,20 +42,24 @@ const unCommentController = async (req, res, next) => {
   try {
     const { id, id_comment } = req.params;
     const validateComment = await existingComment(id, id_comment);
-
+    console.log(validateComment);
+    if (validateComment.length === 0) {
+      throw generateError('No existe el comentario indicado', 403);
+    }
     const existsPost = await searchDeletePhoto(id);
 
     if (existsPost.length === 0) {
       throw generateError('No existe el post indicado', 403);
     }
-    if (validateComment.id_user !== req.userId) {
+    if (validateComment[0].id_user !== req.userId) {
       throw generateError('No puedes borrar este comentario', 403);
     }
-    await deleteComment(id_comment);
+    const data = await deleteComment(id_comment);
 
     res.send({
-      status: 200,
+      status: 201,
       message: `Comentario id:${id_comment} borrado correctamente en el post:${id}`,
+      data: data,
     });
   } catch (error) {
     next(error);

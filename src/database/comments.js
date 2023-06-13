@@ -35,7 +35,11 @@ const commentPhoto = async (userId, id, comment) => {
     `,
       [userId, id, comment]
     );
-    return;
+    const data = await connection.query(
+      `SELECT *
+      FROM comments`
+    );
+    return data[0];
   } finally {
     if (connection) connection.release();
   }
@@ -55,7 +59,7 @@ const existingComment = async (id, id_comment) => {
       `,
       [id, id_comment]
     );
-    return result[0];
+    return result;
   } finally {
     if (connection) connection.release();
   }
@@ -75,8 +79,11 @@ const deleteComment = async (id) => {
         `,
       [id]
     );
-
-    return;
+    const data = await connection.query(
+      `SELECT *
+      FROM comments`
+    );
+    return data[0];
   } finally {
     if (connection) connection.release();
   }
