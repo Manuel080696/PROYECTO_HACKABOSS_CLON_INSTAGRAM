@@ -16,8 +16,7 @@ const jwt = require('jsonwebtoken');
 //Controller para dar de alta al usuario
 const newUserController = async (req, res, next) => {
   try {
-    const { name, lastName, userName, email, password, password2, birthDay } =
-      req.body;
+    const { name, lastName, userName, email, password, birthDay } = req.body;
     const schema = joi.object().keys({
       name: joi.string().min(3).max(20).required(),
       lastName: joi.string().min(3).max(40).required(),
@@ -89,7 +88,6 @@ const loginController = async (req, res, next) => {
     if (!email || !password) {
       throw generateError('Debes enviar un email y una password', 400);
     }
-
     const [user] = await getUserByEmail(email);
 
     const validationPassHas = await bcrypt.compare(password, user.password);
@@ -106,7 +104,9 @@ const loginController = async (req, res, next) => {
 
     res.send({
       status: 'ok',
-      data: [{ token, id: user.id, name: user.name, email }],
+      data: [
+        { token, id: user.id, name: user.name, email, avatar: user.avatar },
+      ],
     });
   } catch (error) {
     next(error);

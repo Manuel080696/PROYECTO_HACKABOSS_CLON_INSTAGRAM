@@ -24,7 +24,6 @@ const getPhotosController = async (req, res, next) => {
   try {
     const { search } = req.query;
     const { authorization } = req.headers;
-    console.log(search);
 
     if (authorization) {
       const token = await idToken(authorization);
@@ -153,7 +152,6 @@ const deletePhotoController = async (req, res, next) => {
   try {
     const { id } = req.params;
     const search = await searchDeletePhoto(id);
-    console.log(search);
 
     if (search.length === 0) {
       throw generateError('No existe el post indicado', 403);
