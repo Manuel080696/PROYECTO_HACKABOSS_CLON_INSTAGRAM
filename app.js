@@ -22,6 +22,7 @@ const {
   loginController,
   deleteUserController,
   updateUserController,
+  getMeUserController,
 } = require('./src/controllers/users');
 
 /*Rutas Photos*/
@@ -48,6 +49,7 @@ const { isUserExists } = require('./src/middleware/isUserExists');
 /*     Users*/
 app.post('/user', newUserController);
 app.get('/user/:id', isUserExists, getUserController);
+app.get('/user', isUserAuth, getMeUserController);
 app.post('/login', loginController);
 app.delete('/user/:id', isUserAuth, deleteUserController);
 app.patch('/user', isUserAuth, updateUserController);

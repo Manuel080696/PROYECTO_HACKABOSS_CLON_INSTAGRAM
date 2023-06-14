@@ -16,8 +16,7 @@ const jwt = require('jsonwebtoken');
 //Controller para dar de alta al usuario
 const newUserController = async (req, res, next) => {
   try {
-    const { name, lastName, userName, email, password, password2, birthDay } =
-      req.body;
+    const { name, lastName, userName, email, password, birthday } = req.body;
     const schema = joi.object().keys({
       name: joi.string().min(3).max(20).required(),
       lastName: joi.string().min(3).max(40).required(),
@@ -25,7 +24,7 @@ const newUserController = async (req, res, next) => {
       email: joi.string().email().required(),
       password: joi.string().min(8).required(),
       password2: joi.string().min(8).required(),
-      birthDay: joi.date(),
+      birthday: joi.date(),
       avatar: joi.object({
         filename: joi.string().required(),
         mimetype: joi
@@ -55,11 +54,24 @@ const newUserController = async (req, res, next) => {
       userName,
       email,
       password,
-      birthDay
+      birthday
     );
     res.send({
       status: 201,
       message: `Usuario ${newUser} creado correctamente`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getMeUserController = async (req, res, next) => {
+  try {
+    const user = await getUserById(req.userId);
+
+    res.send({
+      status: 'ok',
+      data: user,
     });
   } catch (error) {
     next(error);
@@ -72,6 +84,7 @@ const getUserController = async (req, res, next) => {
     const { id } = req.params;
     const user = await getUserById(id);
 
+    console.log(user);
     res.send({
       status: 'ok',
       data: user,
@@ -106,7 +119,7 @@ const loginController = async (req, res, next) => {
 
     res.send({
       status: 'ok',
-      data: [{ token, id: user.id, name: user.name, email }],
+      data: { token, id: user.id, name: user.name, email },
     });
   } catch (error) {
     next(error);
@@ -167,7 +180,7 @@ const updateUserController = async (req, res, next) => {
     res.send({
       status: 'ok',
       message: `El usuario con id:${req.userId} ha sido actualizado`,
-      data: [{ name, lastName, userName, birthDay }],
+      data: { name, lastName, userName, birthDay },
     });
   } catch (error) {
     next(error);
@@ -180,4 +193,5 @@ module.exports = {
   loginController,
   deleteUserController,
   updateUserController,
+  getMeUserController,
 };
