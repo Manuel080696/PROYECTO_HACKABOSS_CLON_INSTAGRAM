@@ -4,6 +4,7 @@ const { getDB } = require('./db');
 //Función para obtener todas las fotos con sus datos
 const getAllPhotos = async (userId, search) => {
   let connection;
+  console.log(userId);
 
   try {
     connection = await getDB();

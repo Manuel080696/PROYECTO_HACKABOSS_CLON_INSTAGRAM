@@ -42,6 +42,7 @@ const unCommentController = async (req, res, next) => {
   try {
     const { id, id_comment } = req.params;
     const validateComment = await existingComment(id, id_comment);
+    console.log(validateComment);
     if (validateComment.length === 0) {
       throw generateError('No existe el comentario indicado', 403);
     }
