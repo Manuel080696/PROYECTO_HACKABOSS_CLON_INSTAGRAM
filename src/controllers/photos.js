@@ -11,7 +11,6 @@ const {
 } = require('../../helpers');
 const {
   createPost,
-  searchPhoto,
   getPhoto,
   searchDeletePhoto,
   deletePhoto,
@@ -99,25 +98,6 @@ const newPhotosController = async (req, res, next) => {
   }
 };
 
-//Controller para buscar posts por medio de una palabra que se encuentre en la descripción
-const searchPhotoController = async (req, res, next) => {
-  try {
-    const { search } = req.query;
-    const data = await searchPhoto(search);
-
-    if (data.length === 0) {
-      throw generateError('No hay photos con esta busquedá', 404);
-    }
-    res.send({
-      status: 200,
-      message: 'Fotos coincidentes',
-      data: data,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 //Controller para obtener un post por medio de su id
 const getPhotoSingleController = async (req, res, next) => {
   try {
@@ -177,7 +157,6 @@ const deletePhotoController = async (req, res, next) => {
 module.exports = {
   getPhotosController,
   newPhotosController,
-  searchPhotoController,
   getPhotoSingleController,
   deletePhotoController,
 };

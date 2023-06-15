@@ -28,7 +28,6 @@ const {
 const {
   getPhotosController,
   newPhotosController,
-  searchPhotoController,
   getPhotoSingleController,
   deletePhotoController,
 } = require('./src/controllers/photos');
@@ -55,7 +54,6 @@ app.patch('/user', isUserAuth, updateUserController);
 /*      Photos*/
 app.get('/photos', getPhotosController);
 app.post('/photos', isUserAuth, newPhotosController);
-app.get('/photos/search', searchPhotoController);
 app.get('/photos/:id', getPhotoSingleController);
 app.delete('/photos/:id', isUserAuth, deletePhotoController);
 

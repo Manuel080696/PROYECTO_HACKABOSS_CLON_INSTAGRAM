@@ -29,7 +29,7 @@ const getAllPhotos = async (userId, search) => {
       LEFT JOIN comments c ON p.id = c.id_photo
 
   WHERE 
-      description LIKE ?
+      description LIKE ? &&  name NOT LIKE '%borrado%'
 
   GROUP BY 
   p.id
@@ -62,7 +62,7 @@ ORDER BY
       LEFT JOIN comments c ON p.id = c.id_photo
 
   WHERE 
-      description LIKE ?
+      description LIKE ? &&  name NOT LIKE '%borrado%'
 
   GROUP BY 
   p.id
@@ -93,6 +93,8 @@ ORDER BY
         JOIN users u ON p.id_user = u.id
         LEFT JOIN likes l ON p.id = l.id_photo
         LEFT JOIN comments c ON p.id = c.id_photo
+    WHERE
+        name NOT LIKE '%borrado%'
   
     GROUP BY 
     p.id
@@ -126,22 +128,6 @@ const createPost = async (userId, place, description, image = '') => {
   }
 };
 
-//Funcion para obtener las fotos por una palabra de la descripción
-const searchPhoto = async (description) => {
-  let connection;
-  try {
-    connection = await getDB();
-    const [result] = await connection.query(
-      `
-        SELECT id, photoName, description FROM photos  WHERE description LIKE ? ORDER BY date DESC`,
-      [`%${description}%`]
-    );
-    return result;
-  } finally {
-    if (connection) connection.release();
-  }
-};
-
 //Función para obtener un post por su id
 const getPhoto = async (idPhoto, idUser) => {
   let connection;
@@ -167,7 +153,7 @@ const getPhoto = async (idPhoto, idUser) => {
       LEFT JOIN likes l ON p.id = l.id_photo
       LEFT JOIN comments c ON p.id = c.id_photo
      
-WHERE p.id = ? 
+WHERE p.id = ?  &&  name NOT LIKE '%borrado%'
   GROUP BY 
   p.id
 ORDER BY 
@@ -260,7 +246,6 @@ const deletePhoto = async (id) => {
 module.exports = {
   getAllPhotos,
   createPost,
-  searchPhoto,
   getPhoto,
   searchDeletePhoto,
   deletePhoto,
