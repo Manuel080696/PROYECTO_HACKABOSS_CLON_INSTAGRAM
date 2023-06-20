@@ -24,7 +24,6 @@ const getPhotosController = async (req, res, next) => {
   try {
     const { search } = req.query;
     const { authorization } = req.headers;
-    console.log(search);
 
     if (authorization) {
       const token = await idToken(authorization);

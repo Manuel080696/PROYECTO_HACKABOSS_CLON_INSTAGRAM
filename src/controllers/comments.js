@@ -15,6 +15,7 @@ const postCommentController = async (req, res, next) => {
     const { id } = req.params;
     const { comment } = req.body;
     const userId = req.userId;
+    console.log(comment);
 
     const existPost = await existingPost(id);
 
@@ -42,7 +43,6 @@ const unCommentController = async (req, res, next) => {
   try {
     const { id, id_comment } = req.params;
     const validateComment = await existingComment(id, id_comment);
-    console.log(validateComment);
     if (validateComment.length === 0) {
       throw generateError('No existe el comentario indicado', 403);
     }
@@ -54,7 +54,7 @@ const unCommentController = async (req, res, next) => {
     if (validateComment[0].id_user !== req.userId) {
       throw generateError('No puedes borrar este comentario', 403);
     }
-    const data = await deleteComment(id_comment);
+    const data = await deleteComment(id_comment, id);
 
     res.send({
       status: 201,

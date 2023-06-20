@@ -106,7 +106,18 @@ const loginController = async (req, res, next) => {
 
     res.send({
       status: 'ok',
-      data: [{ token, id: user.id, name: user.name, email }],
+      data: [
+        {
+          token,
+          id: user.id,
+          name: user.name,
+          lastName: user.lastName,
+          UserName: user.userName,
+          birthDay: user.birthDay,
+          email,
+          avatar: user.avatar,
+        },
+      ],
     });
   } catch (error) {
     next(error);
@@ -143,6 +154,7 @@ const updateUserController = async (req, res, next) => {
       );
     }
     const { name, lastName, userName, birthDay } = req.body;
+
     if (!name || !lastName || !userName || !birthDay) {
       throw generateError('Debes enviar todos los campos', 400);
     }
@@ -155,19 +167,21 @@ const updateUserController = async (req, res, next) => {
         await deleteAvatar(avatar.avatar);
         updateAvatar = await saveAvatar(req.files.avatar);
       }
-      await updateUser(
-        req.userId,
-        updateAvatar,
-        name,
-        lastName,
-        userName,
-        birthDay
-      );
+    } else {
+      updateAvatar = avatar.avatar;
     }
+    await updateUser(
+      req.userId,
+      updateAvatar,
+      name,
+      lastName,
+      userName,
+      birthDay
+    );
     res.send({
       status: 'ok',
       message: `El usuario con id:${req.userId} ha sido actualizado`,
-      data: [{ name, lastName, userName, birthDay }],
+      data: [{ name, lastName, userName, birthDay, updateAvatar }],
     });
   } catch (error) {
     next(error);

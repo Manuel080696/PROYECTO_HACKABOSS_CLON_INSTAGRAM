@@ -25,7 +25,6 @@ const existingPost = async (id) => {
 //Función para guardar un comentario
 const commentPhoto = async (userId, id, comment) => {
   let connection;
-
   try {
     connection = await getDB();
     await connection.query(
@@ -37,7 +36,8 @@ const commentPhoto = async (userId, id, comment) => {
     );
     const data = await connection.query(
       `SELECT *
-      FROM comments`
+      FROM comments WHERE id_photo = ?`,
+      [id]
     );
     return data[0];
   } finally {
@@ -66,7 +66,7 @@ const existingComment = async (id, id_comment) => {
 };
 
 //Función para borrar un comentario
-const deleteComment = async (id) => {
+const deleteComment = async (idComment, idPhoto) => {
   let connection;
 
   try {
@@ -77,11 +77,12 @@ const deleteComment = async (id) => {
         FROM comments
         WHERE id=?
         `,
-      [id]
+      [idComment]
     );
     const data = await connection.query(
       `SELECT *
-      FROM comments`
+      FROM comments WHERE id_photo = ?`,
+      [idPhoto]
     );
     return data[0];
   } finally {
