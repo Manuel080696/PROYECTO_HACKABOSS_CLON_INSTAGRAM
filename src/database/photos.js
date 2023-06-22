@@ -120,7 +120,12 @@ const createPost = async (userId, place, description, image = '') => {
     connection = await getDB();
     const [result] = await connection.query(
       `
-        INSERT INTO photos (id_user, photoName, place, description)
+        INSERT INTO photos (
+          id_user,
+          photoName,
+          place,
+          description
+          )
         VALUES(?,?,?,?)`,
       [userId, image, place, description]
     );

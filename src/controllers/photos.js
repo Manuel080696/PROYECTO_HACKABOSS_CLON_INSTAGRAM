@@ -17,6 +17,7 @@ const {
 } = require('../database/photos');
 
 const { getAllPhotos } = require('../database/photos');
+const { getUserById } = require('../database/users');
 
 //Controller para monstrar todos los posts
 const getPhotosController = async (req, res, next) => {
@@ -69,7 +70,9 @@ const getPhotosController = async (req, res, next) => {
 const newPhotosController = async (req, res, next) => {
   try {
     const { place, description } = req.body;
+
     if (req.files && req.files.image) {
+      const user = await getUserById(req.userId);
       let imageFileName;
       const uploadsDir = path.join(__dirname, '../../uploads');
       await createUpload(uploadsDir);
@@ -85,10 +88,22 @@ const newPhotosController = async (req, res, next) => {
         description,
         imageFileName
       );
+
+      console.log(user);
+
       res.send({
         status: 201,
         message: `Post con id: ${photoId} creado correctamente`,
-        data: [{ id: req.userId, place, description, imageFileName }],
+        data: [
+          {
+            userID: req.userId,
+            place,
+            description,
+            photoName: imageFileName,
+            photoID: photoId,
+            avatar: user.userData[0].avatar,
+          },
+        ],
       });
     } else {
       throw generateError('Debes colocar una imagen en tu publicación', 400);
