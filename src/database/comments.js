@@ -35,8 +35,9 @@ const commentPhoto = async (userId, id, comment) => {
       [userId, id, comment]
     );
     const data = await connection.query(
-      `SELECT *
-      FROM comments WHERE id_photo = ?`,
+      `SELECT c.id, c.date, c.text, c.id_user, u.userName, u.avatar
+      FROM comments c, users u
+      WHERE id_photo =? && c.id_user = u.id`,
       [id]
     );
     return data[0];
@@ -80,8 +81,9 @@ const deleteComment = async (idComment, idPhoto) => {
       [idComment]
     );
     const data = await connection.query(
-      `SELECT *
-      FROM comments WHERE id_photo = ?`,
+      `SELECT c.id, c.date, c.text, c.id_user, u.userName, u.avatar
+      FROM comments c, users u
+      WHERE id_photo =? && c.id_user = u.id`,
       [idPhoto]
     );
     return data[0];

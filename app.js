@@ -28,7 +28,6 @@ const {
 const {
   getPhotosController,
   newPhotosController,
-  searchPhotoController,
   getPhotoSingleController,
   deletePhotoController,
 } = require('./src/controllers/photos');

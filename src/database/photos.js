@@ -160,6 +160,7 @@ const getPhoto = async (idPhoto, idUser) => {
       p.date,
       u.avatar,
       u.userName,
+      u.id,
       COUNT(DISTINCT l.id) AS numeroLikes,
       COUNT(DISTINCT c.id) AS numComments,
       MAX(CASE WHEN l.id_user = ? THEN 1 ELSE 0 END) AS dioLike
@@ -181,7 +182,7 @@ ORDER BY
 
     const [comments] = await connection.query(
       `
-      SELECT c.id, c.date, c.text, c.id_user, u.userName
+      SELECT c.id, c.date, c.text, c.id_user, u.userName, u.avatar
       FROM comments c, users u
       WHERE id_photo =? && c.id_user = u.id
       `,
