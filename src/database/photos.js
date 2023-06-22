@@ -130,23 +130,6 @@ const createPost = async (userId, place, description, image = '') => {
   }
 };
 
-
-//Funcion para obtener las fotos por una palabra de la descripción
-const searchPhoto = async (description) => {
-  let connection;
-  try {
-    connection = await getDB();
-    const [result] = await connection.query(
-      `
-        SELECT id, photoName, description FROM photos  WHERE description LIKE ? && name NOT LIKE '%borrado%' ORDER BY date DESC`,
-      [`%${description}%`]
-    );
-    return result;
-  } finally {
-    if (connection) connection.release();
-  }
-};
-
 //Función para obtener un post por su id
 const getPhoto = async (idPhoto, idUser) => {
   let connection;
@@ -162,7 +145,7 @@ const getPhoto = async (idPhoto, idUser) => {
       p.date,
       u.avatar,
       u.userName,
-      u.id,
+      u.id AS userID,
       COUNT(DISTINCT l.id) AS numeroLikes,
       COUNT(DISTINCT c.id) AS numComments,
       MAX(CASE WHEN l.id_user = ? THEN 1 ELSE 0 END) AS dioLike
@@ -196,15 +179,16 @@ ORDER BY
       return data;
     }
     const result = {
-      id: data[0].id,
+      photoID: data[0].id,
       photoName: data[0].photoName,
       description: data[0].description,
       place: data[0].place,
       date: data[0].date,
-      userName: data[0].userName,
+      userID: data[0].userID,
+      userPosted: data[0].userName,
       avatar: data[0].avatar,
-      numeroLikes: data[0].numeroLikes,
-      isLike: data[0].dioLike,
+      numLikes: data[0].numeroLikes,
+      dioLike: data[0].dioLike,
       comments: comments,
     };
     return result;
