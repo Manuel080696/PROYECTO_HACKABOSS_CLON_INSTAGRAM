@@ -4,7 +4,6 @@ const { getDB } = require('./db');
 //Función para obtener todas las fotos con sus datos
 const getAllPhotos = async (userId, search) => {
   let connection;
-  console.log(userId);
 
   try {
     connection = await getDB();
@@ -29,8 +28,9 @@ const getAllPhotos = async (userId, search) => {
       LEFT JOIN likes l ON p.id = l.id_photo
       LEFT JOIN comments c ON p.id = c.id_photo
 
-  WHERE 
+  WHERE
       description LIKE ? && name NOT LIKE '%borrado%'
+
 
   GROUP BY 
   p.id
@@ -96,6 +96,7 @@ ORDER BY
         LEFT JOIN comments c ON p.id = c.id_photo
 
         WHERE name NOT LIKE '%borrado%'
+
   
     GROUP BY 
     p.id
@@ -128,6 +129,7 @@ const createPost = async (userId, place, description, image = '') => {
     if (connection) connection.release();
   }
 };
+
 
 //Funcion para obtener las fotos por una palabra de la descripción
 const searchPhoto = async (description) => {
@@ -172,6 +174,7 @@ const getPhoto = async (idPhoto, idUser) => {
       LEFT JOIN comments c ON p.id = c.id_photo
      
 WHERE p.id = ? && name NOT LIKE '%borrado%'
+
   GROUP BY 
   p.id
 ORDER BY 
@@ -264,7 +267,6 @@ const deletePhoto = async (id) => {
 module.exports = {
   getAllPhotos,
   createPost,
-  searchPhoto,
   getPhoto,
   searchDeletePhoto,
   deletePhoto,
