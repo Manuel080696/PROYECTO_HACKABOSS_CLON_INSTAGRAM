@@ -72,7 +72,6 @@ const newPhotosController = async (req, res, next) => {
     const { place, description } = req.body;
 
     if (req.files && req.files.image) {
-      const user = await getUserById(req.userId);
       let imageFileName;
       const uploadsDir = path.join(__dirname, '../../uploads');
       await createUpload(uploadsDir);
@@ -89,8 +88,6 @@ const newPhotosController = async (req, res, next) => {
         imageFileName
       );
 
-      console.log(user);
-
       res.send({
         status: 201,
         message: `Post con id: ${photoId} creado correctamente`,
@@ -101,7 +98,6 @@ const newPhotosController = async (req, res, next) => {
             description,
             photoName: imageFileName,
             photoID: photoId,
-            avatar: user.userData[0].avatar,
           },
         ],
       });
