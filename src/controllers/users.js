@@ -105,7 +105,6 @@ const loginController = async (req, res, next) => {
     res.send({
       status: 'ok',
       data: [
-
         {
           token,
           id: user.id,
@@ -116,7 +115,6 @@ const loginController = async (req, res, next) => {
           email,
           avatar: user.avatar,
         },
-
       ],
     });
   } catch (error) {
@@ -128,6 +126,7 @@ const loginController = async (req, res, next) => {
 const deleteUserController = async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log(id);
     if (req.userId !== parseInt(id)) {
       throw generateError(
         'No tienes permisos para eliminar a este usuario',

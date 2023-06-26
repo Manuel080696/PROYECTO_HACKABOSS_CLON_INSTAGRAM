@@ -194,6 +194,7 @@ ORDER BY
       avatar: data[0].avatar,
       numLikes: data[0].numeroLikes,
       dioLike: data[0].dioLike,
+      numComments: data[0].numComments,
       comments: comments,
     };
     return result;
