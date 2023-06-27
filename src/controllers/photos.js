@@ -87,6 +87,7 @@ const newPhotosController = async (req, res, next) => {
         description,
         imageFileName
       );
+      console.log(photoId);
 
       res.send({
         status: 201,

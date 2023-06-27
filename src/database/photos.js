@@ -129,6 +129,7 @@ const createPost = async (userId, place, description, image = '') => {
         VALUES(?,?,?,?)`,
       [userId, image, place, description]
     );
+
     return result.insertId;
   } finally {
     if (connection) connection.release();

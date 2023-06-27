@@ -152,7 +152,7 @@ const getUserByEmail = async (email) => {
       [email]
     );
 
-    if (result.lenght === 0) {
+    if (result[0].length === 0) {
       throw generateError('No hay ningún usuario con ese email', 404);
     }
     return result[0];
