@@ -86,14 +86,14 @@ const loginController = async (req, res, next) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      throw generateError('Debes enviar un email y una password', 400);
+      throw generateError('You must send an email and a password', 400);
     }
     const [user] = await getUserByEmail(email);
 
     const validationPassHas = await bcrypt.compare(password, user.password);
 
     if (!validationPassHas) {
-      throw generateError('La contraseña no coincide', 401);
+      throw generateError('Password does not match', 401);
     }
 
     const payLoad = { id: user.id };
@@ -129,7 +129,7 @@ const deleteUserController = async (req, res, next) => {
     console.log(id);
     if (req.userId !== parseInt(id)) {
       throw generateError(
-        'No tienes permisos para eliminar a este usuario',
+        'You do not have permissions to delete this user',
         401
       );
     }
@@ -148,14 +148,14 @@ const updateUserController = async (req, res, next) => {
   try {
     if (!req.userId) {
       throw generateError(
-        'No tienes permisos para actualizar a este usuario',
+        'You do not have permissions to update this user',
         401
       );
     }
     const { name, lastName, userName, birthDay } = req.body;
 
     if (!name || !lastName || !userName || !birthDay) {
-      throw generateError('Debes enviar todos los campos', 400);
+      throw generateError('You must submit all fields', 400);
     }
     let updateAvatar;
     const avatar = await readAvatar(req.userId);

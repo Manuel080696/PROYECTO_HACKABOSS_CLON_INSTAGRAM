@@ -6,7 +6,7 @@ const isUserExists = async (req, res, next) => {
     const { id } = req.params;
     const [user] = await userExists(id);
     if (user.length === 0) {
-      throw generateError('Usuario no existe', 404);
+      throw generateError('User does not exist', 404);
     }
 
     next();

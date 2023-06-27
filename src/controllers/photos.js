@@ -17,7 +17,6 @@ const {
 } = require('../database/photos');
 
 const { getAllPhotos } = require('../database/photos');
-const { getUserById } = require('../database/users');
 
 //Controller para monstrar todos los posts
 const getPhotosController = async (req, res, next) => {
@@ -30,7 +29,7 @@ const getPhotosController = async (req, res, next) => {
       if (search) {
         const photos = await getAllPhotos(token.id, search);
         if (photos.length === 0) {
-          throw generateError('No hay photos con esta busquedá', 404);
+          throw generateError('No photos with this search', 404);
         }
 
         res.send({
@@ -47,7 +46,7 @@ const getPhotosController = async (req, res, next) => {
     } else if (search) {
       const photos = await getAllPhotos(undefined, search);
       if (photos.length === 0) {
-        throw generateError('No hay photos con esta busquedá', 404);
+        throw generateError('No photos with this search', 404);
       }
 
       res.send({
@@ -103,7 +102,7 @@ const newPhotosController = async (req, res, next) => {
         ],
       });
     } else {
-      throw generateError('Debes colocar una imagen en tu publicación', 400);
+      throw generateError('You must put an image in your post', 400);
     }
   } catch (error) {
     next(error);
@@ -118,7 +117,7 @@ const getPhotoSingleController = async (req, res, next) => {
       const token = await idToken(authorization);
       const photos = await getPhoto(req.params.id, token.id);
       if (photos.length === 0) {
-        throw generateError('No existe el post', 404);
+        throw generateError('The post does not exist', 404);
       }
       res.send({
         status: 200,
@@ -127,7 +126,7 @@ const getPhotoSingleController = async (req, res, next) => {
     } else {
       const photos = await getPhoto(req.params.id);
       if (photos.length === 0) {
-        throw generateError('No existe el post', 404);
+        throw generateError('The post does not exist', 404);
       }
       res.send({
         status: 200,
@@ -146,12 +145,12 @@ const deletePhotoController = async (req, res, next) => {
     const search = await searchDeletePhoto(id);
 
     if (search.length === 0) {
-      throw generateError('No existe el post indicado', 403);
+      throw generateError('The post does not exist', 403);
     }
 
     if (search[0].id_user !== req.userId) {
       throw generateError(
-        'Este post pertenece a otro usuario, no puedes eliminarlo',
+        'This post belongs to another user, you cannot delete it',
         403
       );
     }

@@ -20,11 +20,11 @@ const postCommentController = async (req, res, next) => {
     const existPost = await existingPost(id);
 
     if (req.body.comment === '') {
-      throw generateError('No puedes hacer un comentario vacio ', 403);
+      throw generateError('You can not make an empty comment', 403);
     }
 
     if (existPost.length === 0) {
-      throw generateError('El post que quiere comentar no existe', 403);
+      throw generateError('The post you want to comment does not exist', 403);
     }
 
     const data = await commentPhoto(userId, id, comment);
@@ -44,15 +44,15 @@ const unCommentController = async (req, res, next) => {
     const { id, id_comment } = req.params;
     const validateComment = await existingComment(id, id_comment);
     if (validateComment.length === 0) {
-      throw generateError('No existe el comentario indicado', 403);
+      throw generateError('The comment does not exist', 403);
     }
     const existsPost = await searchDeletePhoto(id);
 
     if (existsPost.length === 0) {
-      throw generateError('No existe el post indicado', 403);
+      throw generateError('The post does not exist', 403);
     }
     if (validateComment[0].id_user !== req.userId) {
-      throw generateError('No puedes borrar este comentario', 403);
+      throw generateError('You can not delete the comment', 403);
     }
     const data = await deleteComment(id_comment, id);
 

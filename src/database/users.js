@@ -25,10 +25,7 @@ const createUser = async (
     );
 
     if (user.length > 0) {
-      throw generateError(
-        'Ya existe un usuario en la base de datos con ese email',
-        409
-      );
+      throw generateError('There is already a user with that email', 409);
     }
 
     const passHash = await bcrypt.hash(password, 8);
@@ -78,10 +75,7 @@ const createUserNoAvatar = async (
     );
 
     if (user.length > 0) {
-      throw generateError(
-        'Ya existe un usuario en la base de datos con ese email',
-        409
-      );
+      throw generateError('There is already a user with that email', 409);
     }
 
     const passHash = await bcrypt.hash(password, 8);
@@ -124,7 +118,7 @@ const getUserById = async (id) => {
     );
 
     if (result.lenght === 0) {
-      throw generateError('No hay ningún usuario con esa id', 404);
+      throw generateError('The user does not exist', 404);
     }
 
     const userObject = {
@@ -153,7 +147,7 @@ const getUserByEmail = async (email) => {
     );
 
     if (result[0].length === 0) {
-      throw generateError('No hay ningún usuario con ese email', 404);
+      throw generateError('There is no user with that email', 404);
     }
     return result[0];
   } finally {

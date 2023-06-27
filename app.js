@@ -88,5 +88,5 @@ app.use((error, req, res, next) => {
 app.use(express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, () => {
-  console.log(`El servidor está escuchando en el puerto ${PORT}`);
+  console.log(`The server is listening on the port ${PORT}`);
 });

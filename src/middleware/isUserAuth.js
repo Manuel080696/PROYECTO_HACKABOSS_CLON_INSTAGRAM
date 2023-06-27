@@ -6,13 +6,13 @@ const isUserAuth = (req, res, next) => {
   try {
     const { authorization } = req.headers;
     if (!authorization) {
-      throw generateError('Falta la cabezera de Authorization', 401);
+      throw generateError('You must login or register', 401);
     }
     let token;
     try {
       token = jwt.verify(authorization, process.env.SECRET);
     } catch {
-      throw generateError('Token incorrecto', 401);
+      throw generateError('You must login again', 401);
     }
     req.userId = token.id;
     next();

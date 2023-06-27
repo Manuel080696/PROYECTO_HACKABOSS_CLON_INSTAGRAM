@@ -18,7 +18,7 @@ const likeController = async (req, res, next) => {
     const user = await autoLike(id);
 
     if (user[0].id_user === parseInt(userId)) {
-      throw generateError('¡No puedes darte like a ti mismo!', 403);
+      throw generateError('¡You can not like yourself!', 403);
     }
     const existsUserLike = await existingLike(userId, id);
     if (existsUserLike.length > 0) {
