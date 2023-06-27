@@ -28,7 +28,7 @@ const idToken = async (authorization) => {
     token = jwt.verify(authorization, process.env.SECRET);
     return token;
   } catch {
-    throw generateError('Token incorrecto', 401);
+    throw generateError('You must login again', 401);
   }
 };
 
@@ -52,7 +52,7 @@ const deleteAvatar = async (avatar) => {
     await fs.unlink(`./uploads/avatar/${avatar}`);
     return;
   } catch (error) {
-    throw generateError('Hubo un error al borrar el archivo', 401);
+    throw generateError('There was an error deleting the file', 401);
   }
 };
 
@@ -62,7 +62,7 @@ const deletephotoUploads = async (photo) => {
     await fs.unlink(`./uploads/posts/${photo}`);
     return;
   } catch (error) {
-    throw generateError('Hubo un error al borrar el archivo', 401);
+    throw generateError('There was an error deleting the file', 401);
   }
 };
 
