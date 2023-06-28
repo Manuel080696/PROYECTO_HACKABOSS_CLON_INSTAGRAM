@@ -39,9 +39,8 @@ const saveAvatar = async (avatar) => {
   await createUpload(uploadsDir);
   const avatarDir = path.join(__dirname, './uploads/avatar');
   await createUpload(avatarDir);
-  const image = sharp(avatar.data);
-  image.resize(320);
-  imageFileName = `${nanoid(24)}.jpg`;
+  const image = sharp(avatar.data).toFormat('webp').resize(320);
+  imageFileName = `${nanoid(24)}.webp`;
   await image.toFile(path.join(avatarDir, imageFileName));
   return imageFileName;
 };

@@ -76,9 +76,11 @@ const newPhotosController = async (req, res, next) => {
       await createUpload(uploadsDir);
       const photosDir = path.join(__dirname, '../../uploads/posts');
       await createUpload(photosDir);
-      const image = sharp(req.files.image.data);
-      image.resize(1080);
-      imageFileName = `${nanoid(24)}.jpg`;
+      const image = sharp(req.files.image.data)
+        .toFormat('webp')
+        .resize({ with: 640, height: 800, fit: 'contain' });
+
+      imageFileName = `${nanoid(24)}.webp`;
       await image.toFile(path.join(photosDir, imageFileName));
       const photoId = await createPost(
         req.userId,
