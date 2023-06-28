@@ -242,7 +242,6 @@ const resetUserPassword = async (req, res, next) => {
     }
 
     const user = await getUserByRecoverCode(recoverCode);
-    console.log(user[0].id);
 
     // Establecer la contraseña proporcionada a ese usuario
     await updateResetUserPassword(newPassword, user[0].id);
