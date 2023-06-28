@@ -9,6 +9,9 @@ const {
   deleteUserById,
   updateUser,
   readAvatar,
+  updateRecoverUserPassword,
+  getUserByRecoverCode,
+  updateResetUserPassword,
 } = require('../database/users');
 const joi = require('joi');
 const jwt = require('jsonwebtoken');
@@ -187,10 +190,77 @@ const updateUserController = async (req, res, next) => {
   }
 };
 
+//Controller para recuperar el password
+
+const recorverUserPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw generateError('email is missing', 400);
+    }
+
+    await getUserByEmail(email);
+
+    //generamos un codigo de recuperación
+    const { v4: uuidv4 } = require('uuid');
+    const recoverCode = uuidv4();
+
+    await updateRecoverUserPassword(recoverCode, email);
+
+    //enviamos el codigo por email
+    const mailBody = `
+      Se solicitó un cambio de contraseña para el usuario registrado con este email en InstaClone.
+      El código de recuperación es: ${recoverCode}
+      Si no fuiste tu el que solicitó el cambio, por favor ignora este email.
+      Puedes hacer login con tu password habitual.
+      Gracias!
+      `;
+    const { sendMail } = require('../../helpers.js');
+    await sendMail(email, 'Cambio de contraseña en InstaClone', mailBody);
+
+    res.status(200).send({
+      status: 'ok',
+      message: 'email sent',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+//Controller para resetear el password
+
+const resetUserPassword = async (req, res, next) => {
+  try {
+    const { recoverCode, newPassword } = req.body;
+
+    if (!recoverCode || !newPassword || newPassword.length < 8) {
+      throw generateError(
+        'Missing fields or new password is less than 8 characters',
+        400
+      );
+    }
+
+    const user = await getUserByRecoverCode(recoverCode);
+    console.log(user[0].id);
+
+    // Establecer la contraseña proporcionada a ese usuario
+    await updateResetUserPassword(newPassword, user[0].id);
+
+    res.send({
+      status: 'ok',
+      message: 'User password changed',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   newUserController,
   getUserController,
   loginController,
   deleteUserController,
   updateUserController,
+  recorverUserPassword,
+  resetUserPassword,
 };

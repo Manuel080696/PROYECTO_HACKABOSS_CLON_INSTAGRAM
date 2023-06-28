@@ -239,13 +239,88 @@ const readAvatar = async (id) => {
   }
 };
 
+// Actualizar los datos de un usuario tras recuperar el password
+const updateRecoverUserPassword = async (recoverCode, email) => {
+  let connection;
+  try {
+    connection = await getDB();
+    await connection.query(
+      `
+        UPDATE users
+        SET recoverCode=?, lastAuthUpdate=?
+        WHERE email=?
+      `,
+      [recoverCode, new Date(), email]
+    );
+    return;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+// Comprobar que existe un usuario con un código de recuperación activo
+
+const getUserByRecoverCode = async (recoverCode) => {
+  let connection;
+  try {
+    connection = await getDB();
+
+    const result = await connection.query(
+      `
+      SELECT id
+      FROM users
+      WHERE recoverCode=?;
+          `,
+      [recoverCode]
+    );
+
+    if (result[0].length === 0) {
+      throw generateError('Incorrect recovery code', 400);
+    }
+
+    return result[0];
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+// Actualizar la contraseña proporcionada por el usuario
+
+const updateResetUserPassword = async (newPassword, id) => {
+  let connection;
+  const passHash = await bcrypt.hash(newPassword, 8);
+  try {
+    connection = await getDB();
+    await connection.query(
+      `
+      UPDATE users
+      SET password=?, lastAuthUpdate=?, recoverCode=NULL
+      WHERE id=?
+      `,
+      [passHash, new Date(), id]
+    );
+    return;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
 module.exports = {
   createUserNoAvatar,
   createUser,
   getUserById,
   getUserByEmail,
+  getUserByRecoverCode,
   deleteUserById,
   userExists,
   updateUser,
+  updateRecoverUserPassword,
+  updateResetUserPassword,
   readAvatar,
 };

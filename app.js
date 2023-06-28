@@ -22,6 +22,8 @@ const {
   loginController,
   deleteUserController,
   updateUserController,
+  recorverUserPassword,
+  resetUserPassword,
 } = require('./src/controllers/users');
 
 /*Rutas Photos*/
@@ -50,6 +52,8 @@ app.get('/user/:id', isUserExists, getUserController);
 app.post('/login', loginController);
 app.delete('/user/:id', isUserAuth, deleteUserController);
 app.patch('/user', isUserAuth, updateUserController);
+app.post('/user/recover-password', recorverUserPassword);
+app.post('/user/reset-password', resetUserPassword);
 
 /*      Photos*/
 app.get('/photos', getPhotosController);
