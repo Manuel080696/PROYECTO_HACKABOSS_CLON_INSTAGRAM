@@ -255,10 +255,47 @@ const deletePhoto = async (id) => {
   }
 };
 
+// Borrar foto de la Base de datos
+
+const deletePhotoUpdate = async (id) => {
+  let connection;
+  try {
+    connection = await getDB();
+
+    await connection.query(
+      `
+      DELETE FROM photos 
+      WHERE photos.id=?;
+      `,
+      [id]
+    );
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// Actualizar los datos de un post
+
+const updatePost = async (id, updatePhoto, place, description) => {
+  let connection;
+  try {
+    connection = await getDB();
+
+    await connection.query(
+      `UPDATE photos SET photoName=?, place=?, description=? WHERE id=?`,
+      [updatePhoto, place, description, id]
+    );
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 module.exports = {
   getAllPhotos,
   createPost,
   getPhoto,
   searchDeletePhoto,
   deletePhoto,
+  deletePhotoUpdate,
+  updatePost,
 };

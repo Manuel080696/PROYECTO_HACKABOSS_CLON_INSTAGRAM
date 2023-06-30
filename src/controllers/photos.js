@@ -8,12 +8,15 @@ const {
   createUpload,
   idToken,
   deletephotoUploads,
+  savePhoto,
 } = require('../../helpers');
 const {
   createPost,
   getPhoto,
   searchDeletePhoto,
   deletePhoto,
+  deletePhotoUpdate,
+  updatePost,
 } = require('../database/photos');
 
 const { getAllPhotos } = require('../database/photos');
@@ -88,7 +91,6 @@ const newPhotosController = async (req, res, next) => {
         description,
         imageFileName
       );
-      console.log(photoId);
 
       res.send({
         status: 201,
@@ -167,9 +169,53 @@ const deletePhotoController = async (req, res, next) => {
   }
 };
 
+//Controller para actualizar un post
+
+const updatePhotoSingleController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const photo = await getPhoto(id);
+    console.log(photo.photoName);
+
+    if (req.userId !== photo.userID) {
+      throw generateError(
+        'You do not have permissions to update this post',
+        401
+      );
+    }
+    const { place, description } = req.body;
+
+    if (!place || !description) {
+      throw generateError('You must submit all fields', 400);
+    }
+    let updatePhoto;
+    if (req.files && req.files.image) {
+      if (photo.photoName === null) {
+        updatePhoto = await savePhoto(req.files.image);
+      } else {
+        // await deletePhotoUpdate(id);
+        await deletephotoUploads(photo.photoName);
+        updatePhoto = await savePhoto(req.files.image.data);
+      }
+    } else {
+      updatePhoto = photo.photoName;
+    }
+    console.log(updatePhoto);
+    await updatePost(id, updatePhoto, place, description);
+    res.send({
+      status: 'ok',
+      message: `El post con id:${id} ha sido actualizado correctamente`,
+      data: [{ photoID: id, userPosted: photo.userID, place, description }],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPhotosController,
   newPhotosController,
   getPhotoSingleController,
   deletePhotoController,
+  updatePhotoSingleController,
 };

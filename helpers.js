@@ -57,6 +57,7 @@ const deleteAvatar = async (avatar) => {
 
 //Función para borrar una foto
 const deletephotoUploads = async (photo) => {
+  console.log(photo);
   try {
     await fs.unlink(`./uploads/posts/${photo}`);
     return;
@@ -92,6 +93,23 @@ const sendMail = async (to, subject, body) => {
   }
 };
 
+//Función para guardar una foto
+const savePhoto = async (photo) => {
+  console.log(photo);
+  let imageFileName;
+  const uploadsDir = path.join(__dirname, './uploads');
+  await createUpload(uploadsDir);
+  const photosDir = path.join(__dirname, './uploads/posts');
+  await createUpload(photosDir);
+  const image = sharp(photo)
+    .toFormat('webp')
+    .resize({ with: 640, height: 800, fit: 'contain' });
+
+  imageFileName = `${nanoid(24)}.webp`;
+  await image.toFile(path.join(photosDir, imageFileName));
+  return imageFileName;
+};
+
 module.exports = {
   generateError,
   createUpload,
@@ -100,4 +118,5 @@ module.exports = {
   deleteAvatar,
   deletephotoUploads,
   sendMail,
+  savePhoto,
 };

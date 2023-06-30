@@ -195,6 +195,7 @@ const updateUserController = async (req, res, next) => {
 const recorverUserPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
+    console.log(email);
 
     if (!email) {
       throw generateError('email is missing', 400);
@@ -233,6 +234,7 @@ const recorverUserPassword = async (req, res, next) => {
 const resetUserPassword = async (req, res, next) => {
   try {
     const { recoverCode, newPassword } = req.body;
+    console.log(recoverCode, newPassword);
 
     if (!recoverCode || !newPassword || newPassword.length < 8) {
       throw generateError(

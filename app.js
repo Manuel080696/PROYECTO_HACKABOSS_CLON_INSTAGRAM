@@ -31,6 +31,7 @@ const {
   getPhotosController,
   newPhotosController,
   getPhotoSingleController,
+  updatePhotoSingleController,
   deletePhotoController,
 } = require('./src/controllers/photos');
 
@@ -59,6 +60,7 @@ app.post('/user/reset-password', resetUserPassword);
 app.get('/photos', getPhotosController);
 app.post('/photos', isUserAuth, newPhotosController);
 app.get('/photos/:id', getPhotoSingleController);
+app.patch('/photos/:id', isUserAuth, updatePhotoSingleController);
 app.delete('/photos/:id', isUserAuth, deletePhotoController);
 
 /*      Likes*/
