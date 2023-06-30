@@ -191,7 +191,7 @@ const updatePhotoSingleController = async (req, res, next) => {
     let updatePhoto;
     if (req.files && req.files.image) {
       if (photo.photoName === null) {
-        updatePhoto = await savePhoto(req.files.image);
+        updatePhoto = await savePhoto(req.files.image.data);
       } else {
         // await deletePhotoUpdate(id);
         await deletephotoUploads(photo.photoName);
@@ -205,7 +205,15 @@ const updatePhotoSingleController = async (req, res, next) => {
     res.send({
       status: 'ok',
       message: `El post con id:${id} ha sido actualizado correctamente`,
-      data: [{ photoID: id, userPosted: photo.userID, place, description }],
+      data: [
+        {
+          photoID: id,
+          userPosted: photo.userID,
+          place,
+          description,
+          updatePhoto,
+        },
+      ],
     });
   } catch (error) {
     next(error);
