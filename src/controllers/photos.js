@@ -15,7 +15,6 @@ const {
   getPhoto,
   searchDeletePhoto,
   deletePhoto,
-  deletePhotoUpdate,
   updatePost,
 } = require('../database/photos');
 
