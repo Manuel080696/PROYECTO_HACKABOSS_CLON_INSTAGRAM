@@ -31,13 +31,34 @@
     <li>DEL - "unCommentController" ✔️ </li>
 </ul>
   
-  
+
 <h2>Manual de uso</h2>
 <ol>
-  <li>Este proyecto dispone únicamente de la parte de back, por ello deben de disponer de un programa de testeo de rutas, como se usa "Postman" en este caso</li>
+  <li>Este es el backend, del proyecto de InstaClone, para inicializar el proyecto lo primero que deberemos hacer es crear la base de datos e iniciarla, para ello deberemos de seguir los siguientes pasos:
+	<ol>
+		<li><article><p>Vamos al repositorio y le damos a code, y copiaremos la clave HTTPS o SSH</p>
+		<img src="https://github.com/Manuel080696/PruebasManu/blob/main/claveHTTPSSSH.png?raw=true"/></article></li>
+		<p/>
+      <li><p>Deberemos elegir la carpeta donde deseamos crear nuestro repositorio. Para este ejemplo, usaremos <a href="https://git-scm.com/">git</a> para windows. Una vez situados en el directorio deseado, haremos click derecho y pulsaremos en la opción "Git Bash Here". Esto iniciará la consola de comandos de git, una vez situados en la cosnola introduciremos el siguiente comando "git clone claveHTTPS o claveSSH":</p>
+      <img src="https://github.com/Manuel080696/PruebasManu/blob/main/gitCloneRepositorio.png?raw=true"/>
+      </li>
+      <p/>
+		<li>Una vez tengamos el repositorio descargado, deberemos ejecutarlo mediante algun compilador de código. En este ejemplo usaremos <a href="https://code.visualstudio.com/">visual studio code</a>, simplemente en la misma consola de git usada en el ejemplo anterior, primero accederemos a la carpeta mediante "cd PROYECTO_HACKABOSS_CLON_INSTAGRAM/". Y por último iniciaremos visual mediante el comando "code ."
+    <img src="https://github.com/Manuel080696/PruebasManu/blob/main/gitCodeVisual.png?raw=true"/>
+    </li>
+        <p/>
+    <li>Deberemos renombrar el ".env.example" y a ".env", y en el colocar los datos de <a href="https://www.mysql.com/products/workbench/">workbench de sql</a>, la dirección del host, la clave <a href="https://sendgrid.com/">sendgrid</a> y su correo, el puerto que queremos elegir, clave secreta, etc: 
+    <img src="https://github.com/Manuel080696/PruebasManu/blob/main/envBackEnd.png"/>
+    </li>
+          <p/>
+    <li>Una vez realizados todos estos pasos, solo nos quedará iniciar el terminal de visual, instalar los modulos npm mediante el comando "npm i" y después. Crear la base de datos, mediante "node .\src\database\createDB.js". Y simplemente, ejecutarla mediante el comando "npm run".
+      <img src="https://github.com/Manuel080696/PruebasManu/blob/main/insalacionDelBack.png?raw=true"/>
+    </li>
+            <p/>
+</ol>
+</li>
   <p></p>
-  <li>Disponer de las rutas que se usan, por ello adjunto el archivo con dichas rutas de este proyecto, las cuales hacen referencia al puerto, ya que el proyecto está configurado para dicho puerto:
-   (https://github.com/Manuel080696/PruebasManu/blob/main/instaClone.postman_collection.json)
+  <li>Para los usuarios más avanzados que quieran hacer pruebas mediante postman, aquí os dejo la colección de rutas <a href="https://github.com/Manuel080696/PruebasManu/blob/main/InstaClone.postman_collection.json">PostmanCollectionInstaClone</a>
   </li>
   <p></p>
   <li>Para crear un usuario, debe tener obligatoriamente:
