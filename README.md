@@ -33,6 +33,7 @@
   
 
 <h2>Manual de uso</h2>
+<p><strong>Esta aplicación necesita de su <a href="https://github.com/Manuel080696/FrontEndInstaClone">frontend</a> para su funcionamiento.</strong></p>
 <ol>
   <li>Este es el backend, del proyecto de InstaClone, para inicializar el proyecto lo primero que deberemos hacer es crear la base de datos e iniciarla, para ello deberemos de seguir los siguientes pasos:
 	<ol>
