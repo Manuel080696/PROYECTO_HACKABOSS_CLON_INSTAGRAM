@@ -129,7 +129,7 @@ const loginController = async (req, res, next) => {
 const deleteUserController = async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log(id);
+   
     if (req.userId !== parseInt(id)) {
       throw generateError(
         'You do not have permissions to delete this user',
@@ -195,7 +195,7 @@ const updateUserController = async (req, res, next) => {
 const recorverUserPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-    console.log(email);
+  
 
     if (!email) {
       throw generateError('email is missing', 400);
@@ -234,7 +234,7 @@ const recorverUserPassword = async (req, res, next) => {
 const resetUserPassword = async (req, res, next) => {
   try {
     const { recoverCode, newPassword } = req.body;
-    console.log(recoverCode, newPassword);
+  
 
     if (!recoverCode || !newPassword || newPassword.length < 8) {
       throw generateError(

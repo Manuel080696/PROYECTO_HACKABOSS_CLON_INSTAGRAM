@@ -15,7 +15,7 @@ const postCommentController = async (req, res, next) => {
     const { id } = req.params;
     const { comment } = req.body;
     const userId = req.userId;
-    console.log(comment);
+   
 
     const existPost = await existingPost(id);
 

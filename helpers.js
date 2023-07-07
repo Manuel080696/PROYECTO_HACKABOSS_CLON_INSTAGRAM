@@ -57,7 +57,6 @@ const deleteAvatar = async (avatar) => {
 
 //Función para borrar una foto
 const deletephotoUploads = async (photo) => {
-  console.log(photo);
   try {
     await fs.unlink(`./uploads/posts/${photo}`);
     return;
@@ -86,7 +85,7 @@ const sendMail = async (to, subject, body) => {
           </div>
           `,
     };
-    console.log(msg);
+   
     await sgEmail.send(msg);
   } catch (error) {
     throw generateError('Email sending error', 401);
@@ -95,7 +94,7 @@ const sendMail = async (to, subject, body) => {
 
 //Función para guardar una foto
 const savePhoto = async (photo) => {
-  console.log(photo);
+  
   let imageFileName;
   const uploadsDir = path.join(__dirname, './uploads');
   await createUpload(uploadsDir);

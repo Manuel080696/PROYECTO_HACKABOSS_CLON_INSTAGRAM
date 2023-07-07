@@ -174,7 +174,7 @@ const updatePhotoSingleController = async (req, res, next) => {
   try {
     const { id } = req.params;
     const photo = await getPhoto(id);
-    console.log(photo.photoName);
+   
 
     if (req.userId !== photo.userID) {
       throw generateError(
@@ -199,7 +199,7 @@ const updatePhotoSingleController = async (req, res, next) => {
     } else {
       updatePhoto = photo.photoName;
     }
-    console.log(updatePhoto);
+    
     await updatePost(id, updatePhoto, place, description);
     res.send({
       status: 'ok',
